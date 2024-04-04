@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "admin", 
+    "chatbot",
+    "database",
+    "twitch_api",
+]
+
+default-members = [ "chatbot", "admin" ]
