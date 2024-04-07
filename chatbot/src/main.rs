@@ -10,7 +10,7 @@ mod auth;
 pub async fn main() {
     tracing_subscriber::fmt::init(); // Logging setup
     dotenv().expect(".env file not found"); // load environment variables from .env file
-    start_chatbot_for("duncstar").await; // Start the chatbot
+    start_chatbot_for("tastyandthecats").await; // Start the chatbot
 }
 
 /// Runs a chatbot for a given channel
