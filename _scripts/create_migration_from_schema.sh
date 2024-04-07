@@ -1,0 +1,1 @@
+diesel migration generate --diff-schema $1

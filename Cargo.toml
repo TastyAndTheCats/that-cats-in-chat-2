@@ -2,10 +2,11 @@
 resolver = "2"
 
 members = [
-    "admin", 
+    "admin", "certs", 
     "chatbot",
     "database",
-    "twitch_api",
+    "twitch_api", 
+    "utils",
 ]
 
-default-members = [ "chatbot", "admin" ]
+default-members = [ "chatbot", "admin", "certs" ]

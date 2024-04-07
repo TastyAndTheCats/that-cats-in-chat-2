@@ -1,4 +1,6 @@
-diesel::table! {
+use diesel::table;
+
+table! {
     twitch_channel (id) {
         id -> Text,
         login -> Text,
@@ -12,7 +14,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     twitch_games (id) {
         id -> Text,
         name -> Text,

@@ -6,5 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+actix-web = { version = "4.5.1", features = ["rustls-0_22"] }
 database = { path="../database" }
+dotenvy = "0.15.7"
+rustls = "0.22"
+rustls-pemfile = "2.1.2"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
 twitch_api = { path="../twitch_api" }
+utils = { path="../utils" }
