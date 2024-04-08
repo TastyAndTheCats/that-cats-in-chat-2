@@ -226,6 +226,7 @@ dependencies = [
  "dotenvy",
  "rustls",
  "rustls-pemfile 2.1.2",
+ "serde",
  "tracing",
  "tracing-subscriber",
  "twitch_api",
@@ -441,8 +442,10 @@ checksum = "8a0d04d43504c61aa6c7531f1871dd0d418d91130162063b789da00fd7057a5e"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-targets 0.52.4",
 ]
 
@@ -511,6 +514,7 @@ dependencies = [
 name = "database"
 version = "0.0.0"
 dependencies = [
+ "chrono",
  "diesel",
  "dotenvy",
 ]
@@ -545,6 +549,7 @@ checksum = "03fc05c17098f21b89bc7d98fe1dd3cce2c11c2ad8e145f2a44fe08ed28eb559"
 dependencies = [
  "bitflags 2.5.0",
  "byteorder",
+ "chrono",
  "diesel_derives",
  "itoa",
  "pq-sys",

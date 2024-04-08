@@ -1,5 +1,6 @@
 /// The Cats In Chat is a multifunction chatbot focussed around providing a wholesome experience on Twitch
 use dotenvy::dotenv;
+use std::env;
 use tokio::{self, sync::mpsc::UnboundedReceiver};
 use twitch_irc::message::ServerMessage;
 
@@ -10,7 +11,10 @@ mod auth;
 pub async fn main() {
     tracing_subscriber::fmt::init(); // Logging setup
     dotenv().expect(".env file not found"); // load environment variables from .env file
-    start_chatbot_for("tastyandthecats").await; // Start the chatbot
+    start_chatbot_for(
+        &env::var("TWITCH_CHANNEL").expect("Missing TWITCH_CHANNEL environment variable."),
+    )
+    .await; // Start the chatbot
 }
 
 /// Runs a chatbot for a given channel
@@ -23,12 +27,16 @@ async fn start_chatbot_for(channel_name: &str) {
     join_handle.await.unwrap();
 }
 
-
-async fn handle_twitch_message(mut incoming_messages: UnboundedReceiver<ServerMessage>){
+async fn handle_twitch_message(mut incoming_messages: UnboundedReceiver<ServerMessage>) {
     while let Some(message) = incoming_messages.recv().await {
         match message {
             ServerMessage::Privmsg(msg) => {
-                tracing::info!("#{} {}: {}", msg.channel_login, msg.sender.name, msg.message_text);
+                tracing::info!(
+                    "#{} {}: {}",
+                    msg.channel_login,
+                    msg.sender.name,
+                    msg.message_text
+                );
             }
 
             ServerMessage::Whisper(msg) => {

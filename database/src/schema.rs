@@ -1,22 +1,27 @@
-use diesel::table;
+// @generated automatically by Diesel CLI.
 
-table! {
+diesel::table! {
     twitch_channel (id) {
         id -> Text,
         login -> Text,
         name -> Text,
         language -> Text,
-        game_id -> Text,
-        title -> Text, // Last Stream
-        delay -> Int,
-        content_classification -> Text,
-        is_branded_content -> Boolean,
+        delay -> Int4,
     }
 }
 
-table! {
-    twitch_games (id) {
-        id -> Text,
-        name -> Text,
+diesel::table! {
+    twitch_login_process (state) {
+        state -> Text,
+        scope -> Text,
+        code -> Nullable<Text>,
+        is_bot -> Bool,
+        is_broadcaster -> Bool,
+        initiated_at -> Timestamp,
     }
 }
+
+diesel::allow_tables_to_appear_in_same_query!(
+    twitch_channel,
+    twitch_login_process,
+);

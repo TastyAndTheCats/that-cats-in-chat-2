@@ -1,4 +1,6 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::web::{redirect, Query, ServiceConfig};
+use actix_web::{get, HttpResponse, Responder};
+use serde::Deserialize;
 use std::env;
 
 fn state() -> String {
@@ -28,15 +30,25 @@ fn credentials_url(state: &str) -> String {
     )
 }
 
-#[get("/login_accepted/")]
-async fn twitch_login_accepted() -> impl Responder {
-    HttpResponse::Ok().body("Login accepted.")
+#[derive(Deserialize)]
+struct TwitchLoginResponse {
+    code: String,
+    scope: String,
+    state: String,
 }
 
-pub fn config(cfg: &mut web::ServiceConfig) {
+#[get("/login_accepted/")]
+async fn twitch_login_accepted(query: Query<TwitchLoginResponse>) -> impl Responder {
+    HttpResponse::Ok().body(format!(
+        "Login accepted. code:{} scope:{} state:{}",
+        query.code, query.scope, query.state
+    ))
+}
+
+pub fn config(cfg: &mut ServiceConfig) {
     let state = state();
 
-    cfg.service(web::redirect("/login", credentials_url(&state)))
+    cfg.service(redirect("/login", credentials_url(&state)))
         .service(twitch_login_accepted);
     // .service(hello)
     // .service(echo);
