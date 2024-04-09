@@ -7,11 +7,15 @@ edition = "2021"
 
 [dependencies]
 actix-web = { version = "4.5.1", features = ["rustls-0_22"] }
+askama = { version = "0.12.1", features = ["with-actix-web"] }
+askama_actix = "0.14.0"
 database = { path="../database" }
 dotenvy = "0.15.7"
+reqwest = "0.12.3"
 rustls = "0.22"
 rustls-pemfile = "2.1.2"
 serde = "1.0.197"
+serde_json = "1.0.115"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 twitch_api = { path="../twitch_api" }

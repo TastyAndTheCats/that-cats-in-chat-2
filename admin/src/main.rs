@@ -15,8 +15,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .service(scope("/").configure(sites::core::config))
-            .service(scope("/bot").configure(sites::bot::auth::config))
+            .service(scope("/auth").configure(sites::auth::config))
+            .service(scope("").configure(sites::core::config)) // NOTE: since all routes start with /, you don't need the scope to be "/" here, but it must be last
     })
     // .bind(("0.0.0.0", 8080))?
     .bind_rustls_0_22(("0.0.0.0", 8443), tls_config)?

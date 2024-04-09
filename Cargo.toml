@@ -4,7 +4,7 @@ resolver = "2"
 members = [
     "admin", "certs", 
     "chatbot",
-    "database",
+    "database", 
     "twitch_api", 
     "utils",
 ]

@@ -1,1 +1,1 @@
-cargo run --bin chatbot
+cargo watch -x 'run --bin chatbot'

@@ -1,1 +1,1 @@
-cargo run --bin admin
+cargo watch -x 'run --bin admin'
