@@ -21,5 +21,9 @@ pub struct LoginProcess {
     pub code: Option<String>,  // If code exists, permission was given to login as user, otherwise no
     pub is_bot: bool,
     pub is_broadcaster: bool,
-    pub initiated_at: chrono::NaiveDateTime
+    pub initiated_at: chrono::NaiveDateTime,
+    pub refresh_token: Option<String>,
+    pub token_expiry: Option<i64>,
+    pub access_token: Option<String>,
+    pub token_type: Option<String>
 }

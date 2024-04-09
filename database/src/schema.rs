@@ -18,6 +18,10 @@ diesel::table! {
         is_bot -> Bool,
         is_broadcaster -> Bool,
         initiated_at -> Timestamp,
+        refresh_token -> Nullable<Text>,
+        access_token -> Nullable<Text>,
+        token_type -> Nullable<Text>,
+        token_expiry -> Nullable<Int8>,
     }
 }
 
