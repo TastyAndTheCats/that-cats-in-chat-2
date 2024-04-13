@@ -22,24 +22,23 @@ pub fn state() -> String {
 }
 
 /// Easy place to understand where these credentials are coming from
-pub fn credentials_url(state: &str) -> String {
+pub fn credentials_url(state: &str, redirect_uri: &str) -> String {
     let base_url = "https://id.twitch.tv/oauth2/authorize";
     let client_id =
         env::var("TWITCH_CLIENT_ID").expect("Missing TWITCH_CLIENT_ID environment variable.");
-    let force_verify = "false";
-    let redirect_uri =
-        env::var("TWITCH_REDIRECT_URL").expect("Missing TWITCH_REDIRECT_URL environment variable.");
-    let response_type = "code";
-    let scope = "";
+    let force_verify = "false".to_owned();
+
+    let response_type = "code".to_owned();
+    let scope = "".to_owned();
     utils::url::construct_url(
         base_url,
         vec![
             ("client_id", &client_id),
-            ("force_verify", force_verify),
+            ("force_verify", &force_verify),
             ("redirect_uri", &redirect_uri),
-            ("response_type", response_type),
-            ("scope", scope),
-            ("state", &state),
+            ("response_type", &response_type),
+            ("scope", &scope),
+            ("state", &state.to_owned()),
         ],
     )
 }
@@ -68,6 +67,15 @@ pub async fn complete_handshake(code: &str) -> Result<Response, Error> {
     let response = Client::new()
         .post("https://id.twitch.tv/oauth2/token")
         .body(utils::url::compose_post_body(params))
+        .send()
+        .await?;
+    Ok(response)
+}
+
+pub async fn validate_access_token(access_token: &str) -> Result<Response, Error> {
+    let response = Client::new()
+        .get("https://id.twitch.tv/oauth2/validate")
+        .header("Authorization", format!("OAuth {}", access_token))
         .send()
         .await?;
     Ok(response)

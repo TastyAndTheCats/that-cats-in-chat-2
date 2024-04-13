@@ -1,4 +1,4 @@
-use actix_web::{get, Responder};
+use actix_web::{get, web::Path, Responder};
 
 use askama_actix::Template;
 
@@ -15,10 +15,19 @@ async fn index() -> impl Responder {
     }
 }
 
-// #[post("/echo")]
-// async fn echo(req_body: String) -> impl Responder {
-//     HttpResponse::Ok().body(req_body)
-// }
+#[derive(Template)]
+#[template(path = "dashboard.html")]
+struct DashboardTemplate {
+    bot_login_url: String,
+}
+
+#[get("/dashboard/{owner_id}")]
+async fn dashboard(path: Path<i32>) -> impl Responder {
+    let owner_id = path.into_inner();
+    DashboardTemplate {
+        bot_login_url: format!("/auth/bot_login/{}", owner_id),
+    }
+}
 
 // async fn manual_hello() -> impl Responder {
 //     HttpResponse::Ok().body("Hey there!")
@@ -27,7 +36,6 @@ async fn index() -> impl Responder {
 use actix_web::web;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(index);
-    // .service(echo)
+    cfg.service(index).service(dashboard);
     // .service(web::resource("/hey").route(web::get().to(manual_hello)));
 }
