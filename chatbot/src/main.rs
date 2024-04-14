@@ -1,4 +1,13 @@
-/// The Cats In Chat is a multifunction chatbot focussed around providing a wholesome experience on Twitch
+//! The Cats In Chat is a multifunction chatbot focussed around providing a wholesome experience on Twitch
+//! 
+//! The first TCIC was written in Python and started as apersonal project that ended up getting way bigger than intended.
+//! TCIC2 is a fresh start, open-sourced and written in Rust with many more expected moving parts than the original.
+//! 
+//! I'm just getting started with this, so there aren't really any features and some stuff might end up being weirdly hard coded for now
+//! I will do my best to eliminate any need for an end user to change any code, and once that's done I'll start making executable releases, maybe?
+//! 
+//! I also hope to revive the old method of spawning a chatbot instance from a website, allowing custom commands, etc. but that's a bit down the line.
+
 use dotenvy::dotenv;
 use std::env;
 use tokio::{self, sync::mpsc::UnboundedReceiver};

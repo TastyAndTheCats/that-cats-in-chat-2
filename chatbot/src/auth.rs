@@ -58,7 +58,7 @@ pub async fn configure_chatbot() -> (
     UnboundedReceiver<ServerMessage>,
 ) {
     let channel_id = utils::parse_id(
-        env::var("TCIC_CHANNEL_ID").expect("Missing TCIC_CHANNEL_ID environment variable."),
+        env::var("TWITCH_CHANNEL_ID").expect("Missing TWITCH_CHANNEL_ID environment variable."),
     );
     let config = refreshing_chatbot_config(&channel_id);
     let (incoming_messages, client) = TwitchIRCClient::<
@@ -67,7 +67,7 @@ pub async fn configure_chatbot() -> (
     >::new(config);
 
     client
-        .say("tastyandthecats".to_owned(), "HeyGuys".to_owned())
+        .say(env::var("TWITCH_CHANNEL").expect("Missing TWITCH_CHANNEL environment variable."), "HeyGuys".to_owned())
         .await
         .expect("Couldn't send message!");
     return (client, incoming_messages);
