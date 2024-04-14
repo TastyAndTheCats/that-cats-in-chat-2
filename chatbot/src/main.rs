@@ -28,9 +28,6 @@ pub async fn main() {
 
     let (client, incoming_messages) = auth::configure_chatbot().await;
 
-    say_hello(&client).await;
-
-    let join_handle = tokio::spawn(async move { handler::dispatch(incoming_messages).await });
     client
         .join(
             env::var("TWITCH_CHANNEL")
@@ -39,5 +36,10 @@ pub async fn main() {
                 .to_owned(),
         )
         .unwrap();
+
+    say_hello(&client).await;
+
+    let join_handle =
+        tokio::spawn(async move { handler::dispatch(&client, incoming_messages).await });
     join_handle.await.unwrap();
 }
