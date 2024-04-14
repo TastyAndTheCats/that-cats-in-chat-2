@@ -19,6 +19,6 @@ async fn send_default_message(client: &TwitchClientType, message: &str) {
 }
 
 // Send the classic TCIC HeyGuys startup message
-pub async fn say_hello(client: &TwitchClientType, message: &str) {
-    send_default_message(client, message).await;
+pub async fn say_hello(client: &TwitchClientType) {
+    send_default_message(client, "HeyGuys").await;
 }

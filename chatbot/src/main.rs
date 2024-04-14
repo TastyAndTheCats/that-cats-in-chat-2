@@ -28,7 +28,7 @@ pub async fn main() {
 
     let (client, incoming_messages) = auth::configure_chatbot().await;
 
-    say_hello(&client, "HeyGuys").await;
+    say_hello(&client).await;
 
     let join_handle = tokio::spawn(async move { handler::dispatch(incoming_messages).await });
     client
