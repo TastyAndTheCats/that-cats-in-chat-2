@@ -22,23 +22,21 @@ pub fn state() -> String {
 }
 
 /// Easy place to understand where these credentials are coming from
-pub fn credentials_url(state: &str, redirect_uri: &str) -> String {
+pub fn credentials_url(state: &str, scope: &str, redirect_uri: &str) -> String {
     let base_url = "https://id.twitch.tv/oauth2/authorize";
     let client_id =
         env::var("TWITCH_CLIENT_ID").expect("Missing TWITCH_CLIENT_ID environment variable.");
-    let force_verify = "false".to_owned();
-
-    let response_type = "code".to_owned();
-    let scope = "".to_owned();
+    let force_verify = "false";
+    let response_type = "code";
     utils::url::construct_url(
         base_url,
         vec![
             ("client_id", &client_id),
-            ("force_verify", &force_verify),
-            ("redirect_uri", &redirect_uri),
-            ("response_type", &response_type),
-            ("scope", &scope),
-            ("state", &state.to_owned()),
+            ("force_verify", force_verify),
+            ("redirect_uri", redirect_uri),
+            ("response_type", response_type),
+            ("scope", scope),
+            ("state", state),
         ],
     )
 }
@@ -80,3 +78,34 @@ pub async fn validate_access_token(access_token: &str) -> Result<Response, Error
         .await?;
     Ok(response)
 }
+
+// pub struct TwitchClientCredentials{
+//     access_token: String,
+//     expires_in: i32,
+//     token_type: String,
+// }
+
+// pub async fn client_credentials() -> TwitchClientCredentials {
+//     let params = vec![
+//         (
+//             "client_id",
+//             env::var("TWITCH_CLIENT_ID").expect("Missing TWITCH_CLIENT_ID environment variable."),
+//         ),
+//         (
+//             "client_secret",
+//             env::var("TWITCH_CLIENT_SECRET")
+//                 .expect("Missing TWITCH_CLIENT_SECRET environment variable."),
+//         ),
+//         ("grant_type", "client_credentials".to_owned()),
+//     ];
+
+//     let response = Client::new()
+//         .post("https://id.twitch.tv/oauth2/token")
+//         .body(utils::url::compose_post_body(params))
+//         .send()
+//         .await.unwrap();
+
+//         let client_credentials  =  serde_json::from_str(response).unwrap();
+//         client_credentials
+
+// }

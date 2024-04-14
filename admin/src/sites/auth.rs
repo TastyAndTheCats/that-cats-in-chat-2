@@ -11,12 +11,13 @@ use std::env;
 #[get("/login")]
 async fn twitch_login_initiate() -> impl Responder {
     let state = auth::state();
-    let scope = "";
+    let scope = "channel:bot";
     login::initiate_login(&state, &scope, true, false);
     redirect(
         "/login",
         auth::credentials_url(
             &state,
+            &scope,
             &env::var("TWITCH_REDIRECT_URL")
                 .expect("Missing TWITCH_REDIRECT_URL environment variable."),
         ),
@@ -27,7 +28,7 @@ async fn twitch_login_initiate() -> impl Responder {
 #[get("/bot_login/{owner_id}")]
 async fn twitch_bot_login_initiate(path: Path<i32>) -> impl Responder {
     let state = auth::state();
-    let scope = "";
+    let scope = "chat:read chat:edit";
     let owner_id = path.into_inner();
 
     login::initiate_login(&state, &scope, false, true);
@@ -37,6 +38,7 @@ async fn twitch_bot_login_initiate(path: Path<i32>) -> impl Responder {
         "/bot_login",
         auth::credentials_url(
             &state,
+            &scope,
             &env::var("TWITCH_BOT_REDIRECT_URL")
                 .expect("Missing TWITCH_BOT_REDIRECT_URL environment variable."),
         ),
@@ -117,27 +119,22 @@ async fn twitch_login_accepted(query: Query<auth::TwitchLoginSuccessResponse>) -
 }
 
 /// Twitch will redirect here after the bot login process is complete
-#[get("/bot_login_accepted/")]
+#[get("/bot_login_accepted/")] // The ending / is required for Twitch reasons
 async fn twitch_bot_login_accepted(
     query: Query<auth::TwitchLoginSuccessResponse>,
 ) -> impl Responder {
     let [bot_id, bot_login] = validate_twitch_login(&query).await;
 
-    let bot_id = bot_id
-        .expect("Login was invalid")
-        .as_str()
-        .parse::<i32>()
-        .unwrap();
-
+    let bot_id = utils::parse_id(bot_id.expect("Login was invalid"));
     let bot_owner_id = database::channel::bot_owner_from_state(&query.state).await;
-    database::login::save_initial_bot_details(
-        &query.state,
-        &bot_id,
-        bot_login.expect("Login was invalid").as_str(),
-        &bot_owner_id,
-    );
+    let bot_login = bot_login.expect("Login was invalid");
 
-    redirect("/login_accepted", format!("/dashboard/{}", bot_owner_id))
+    database::login::save_initial_bot_details(&query.state, &bot_id, &bot_login, &bot_owner_id);
+
+    HttpResponse::Ok().body(format!(
+        "You have succesfully registered {} as a chatbot powered by TheCatsInChat (in channel #{})!\n You can close this tab/window.",
+        bot_login, bot_owner_id
+    ))
 }
 
 // This might overright the above route on a fail? I would like that, but I have doubts
@@ -169,6 +166,4 @@ pub fn config(cfg: &mut ServiceConfig) {
         .service(twitch_bot_login_initiate)
         .service(twitch_bot_login_accepted)
         .service(twitch_bot_login_rejected);
-    // .service(hello)
-    // .service(echo);
 }

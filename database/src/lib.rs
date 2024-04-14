@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
 
+pub mod bot;
 pub mod channel;
 pub mod login;
 mod models;

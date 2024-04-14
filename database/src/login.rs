@@ -132,3 +132,30 @@ pub fn add_bot_owner(state: &str, owner_id: &i32) {
         .execute(connection)
         .expect("Failed to save bot access token");
 }
+
+/// Returns the bot's access token given the bot's login state nonce
+pub async fn bot_access_token(state: &str) -> LoginProcess {
+    let connection = &mut establish_connection();
+    let login_info = twitch_login_process::table
+        .filter(twitch_login_process::state.eq(state))
+        .select(LoginProcess::as_select())
+        .get_result(connection)
+        .unwrap();
+    // TODO?: Check token validity
+    login_info
+}
+
+/// Updates a given bot's access token LoginProcess
+pub async fn update_bot_access_token(state: &str, new_login_process: LoginProcess) -> LoginProcess {
+    let connection = &mut establish_connection();
+    diesel::update(twitch_login_process::table.find(state))
+        .set((
+            twitch_login_process::access_token.eq(new_login_process.access_token),
+            twitch_login_process::refresh_token.eq(new_login_process.refresh_token),
+            twitch_login_process::initiated_at.eq(new_login_process.initiated_at),
+            twitch_login_process::token_expiry.eq(new_login_process.token_expiry),
+        ))
+        .returning(LoginProcess::as_returning())
+        .get_result(connection)
+        .unwrap()
+}
