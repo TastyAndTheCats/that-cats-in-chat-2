@@ -13,11 +13,11 @@ use std::env;
 use tokio;
 
 mod auth;
+mod definitions;
 mod handler;
 mod responder;
-mod definitions;
 
-use responder::send_message;
+use responder::say_hello;
 
 /// Run the chatbot stack and connect the authenticated chatbot to the TWITCH_CHANNEL provided in .env
 /// NOTE: if your authentication fails it might be a permissions issue not an auth issue
@@ -28,10 +28,9 @@ pub async fn main() {
 
     let (client, incoming_messages) = auth::configure_chatbot().await;
 
-    send_message(&client, "HeyGuys").await;
+    say_hello(&client, "HeyGuys").await;
 
-    let join_handle =
-        tokio::spawn(async move { handler::handle_twitch_message(incoming_messages).await });
+    let join_handle = tokio::spawn(async move { handler::dispatch(incoming_messages).await });
     client
         .join(
             env::var("TWITCH_CHANNEL")
