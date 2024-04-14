@@ -1,7 +1,10 @@
+//! API Routes for Logging Into Twitch
+
 use reqwest::{Client, Error, Response};
 use serde::Deserialize;
 use std::env;
 
+/// Successful Login response
 #[derive(Deserialize)]
 pub struct TwitchLoginSuccessResponse {
     pub code: String,
@@ -9,6 +12,7 @@ pub struct TwitchLoginSuccessResponse {
     pub state: String,
 }
 
+/// Failed Login struct
 #[derive(Deserialize)]
 pub struct TwitchLoginFailResponse {
     pub error: String,
@@ -16,7 +20,14 @@ pub struct TwitchLoginFailResponse {
     pub state: String,
 }
 
-// Generates a random string for nonce purposes
+// UNUSED: Allows the Client Credential flow, I just ended up not using it
+// pub struct TwitchClientCredentials{
+//     access_token: String,
+//     expires_in: i32,
+//     token_type: String,
+// }
+
+/// Generates a random string for nonce purposes
 pub fn state() -> String {
     utils::rand::generate_password(46)
 }
@@ -70,6 +81,7 @@ pub async fn complete_handshake(code: &str) -> Result<Response, Error> {
     Ok(response)
 }
 
+/// This validates the access_token AND gives you the user's login and id
 pub async fn validate_access_token(access_token: &str) -> Result<Response, Error> {
     let response = Client::new()
         .get("https://id.twitch.tv/oauth2/validate")
@@ -79,12 +91,7 @@ pub async fn validate_access_token(access_token: &str) -> Result<Response, Error
     Ok(response)
 }
 
-// pub struct TwitchClientCredentials{
-//     access_token: String,
-//     expires_in: i32,
-//     token_type: String,
-// }
-
+// UNUSED: Allows the Client Credential flow, I just ended up not using it
 // pub async fn client_credentials() -> TwitchClientCredentials {
 //     let params = vec![
 //         (
