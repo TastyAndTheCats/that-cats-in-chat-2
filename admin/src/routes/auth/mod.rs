@@ -15,7 +15,7 @@ async fn validate_twitch_login(
     is_twitch_login_valid(&get_access_token_from_twitch(&query).await).await
 }
 
-/// Do Twitch secret handshake
+/// Do Twitch's secret handshake
 async fn get_access_token_from_twitch(query: &Query<auth::TwitchLoginSuccessResponse>) -> String {
     let handshake_json: serde_json::Value = serde_json::from_str(
         &auth::complete_handshake(&query.code)

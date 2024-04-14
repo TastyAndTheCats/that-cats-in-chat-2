@@ -1,3 +1,4 @@
+//! Routes we use when logging in the user - and maybe shared parts too
 
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;

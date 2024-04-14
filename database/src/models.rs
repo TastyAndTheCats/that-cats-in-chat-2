@@ -1,3 +1,6 @@
+//! Models for using the Diesel schema as objects
+//! The objects are sort of self documening as to where they're from and what they're representing, so the comments here are minimal
+
 use diesel::prelude::*;
 
 // #[derive(Queryable, Selectable)]

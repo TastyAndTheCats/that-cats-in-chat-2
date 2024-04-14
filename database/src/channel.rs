@@ -1,3 +1,5 @@
+//! Get information about a channel
+
 use diesel::prelude::*;
 
 use super::establish_connection;

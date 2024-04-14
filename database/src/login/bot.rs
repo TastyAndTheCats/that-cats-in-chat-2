@@ -1,3 +1,5 @@
+//! Routes we use when logging in a bot
+
 use diesel::prelude::*;
 
 use crate::establish_connection;
