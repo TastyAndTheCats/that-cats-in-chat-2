@@ -30,8 +30,6 @@ impl TokenStorage for RefreshingTokenStorage {
         let expires_at =
             DateTime::<Utc>::from_timestamp(access_token.token_expiry.unwrap(), 0).unwrap();
 
-        println!("token: {}", &token);
-
         Ok(UserAccessToken {
             access_token: token,
             refresh_token: refresh_token,
@@ -62,8 +60,7 @@ pub async fn configure_chatbot() -> (
     let channel_id = utils::parse_id(
         env::var("TCIC_CHANNEL_ID").expect("Missing TCIC_CHANNEL_ID environment variable."),
     );
-    let bot = bot::bot_from_owner_id(&channel_id).await;
-    let config = refreshing_chatbot_config(&channel_id, &bot.login.unwrap());
+    let config = refreshing_chatbot_config(&channel_id);
     let (incoming_messages, client) = TwitchIRCClient::<
         SecureTCPTransport,
         RefreshingLoginCredentials<RefreshingTokenStorage>,
@@ -78,14 +75,12 @@ pub async fn configure_chatbot() -> (
 
 fn refreshing_chatbot_config(
     channel_id: &i32,
-    login: &str,
 ) -> ClientConfig<RefreshingLoginCredentials<RefreshingTokenStorage>> {
     let storage = RefreshingTokenStorage {
         channel_id: channel_id.to_owned(),
     };
 
-    ClientConfig::new_simple(RefreshingLoginCredentials::init_with_username(
-        Some(login.to_owned()),
+    ClientConfig::new_simple(RefreshingLoginCredentials::init(
         env::var("TWITCH_CLIENT_ID").expect("Missing TWITCH_CLIENT_ID environment variable."),
         env::var("TWITCH_CLIENT_SECRET")
             .expect("Missing TWITCH_CLIENT_SECRET environment variable."),
