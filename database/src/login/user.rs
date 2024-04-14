@@ -97,4 +97,3 @@ pub fn save_initial_user_details(state: &str, id: &i32, login: &str) {
         .execute(connection)
         .expect("Failed to save access token");
 }
-

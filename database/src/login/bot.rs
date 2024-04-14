@@ -44,7 +44,6 @@ pub async fn update_bot_access_token(state: &str, new_login_process: LoginProces
         .unwrap()
 }
 
-
 /// After validation, twitch hands back the user id and login, thesse are useful, so we save them
 pub fn save_initial_bot_details(state: &str, id: &i32, login: &str, bot_owner: &i32) {
     let connection = &mut establish_connection();
@@ -66,7 +65,6 @@ pub fn save_initial_bot_details(state: &str, id: &i32, login: &str, bot_owner: &
         .execute(connection)
         .expect("Failed to save access token");
 }
-
 
 // Set the channel_id for the owner's channel to associate the two during the bot login process
 pub fn add_bot_owner(state: &str, owner_id: &i32) {
