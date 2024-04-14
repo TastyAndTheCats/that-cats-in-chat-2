@@ -15,7 +15,7 @@ use std::env;
 async fn twitch_login_initiate() -> impl Responder {
     let state = auth::state();
     let scope = "channel:bot";
-    login::initiate_login(&state, &scope, true, false);
+    login::user::initiate_login(&state, &scope, true, false);
     redirect(
         "/login",
         auth::credentials_url(
@@ -33,7 +33,7 @@ async fn twitch_login_accepted(query: Query<auth::TwitchLoginSuccessResponse>) -
     let [user_id, user_login] = validate_twitch_login(&query).await;
 
     let user_id = user_id.expect("Login was invalid").parse::<i32>().unwrap();
-    database::login::save_initial_user_details(
+    login::user::save_initial_user_details(
         &query.state,
         &user_id,
         user_login.expect("Login was invalid").as_str(),
@@ -46,7 +46,7 @@ async fn twitch_login_accepted(query: Query<auth::TwitchLoginSuccessResponse>) -
 #[get("/login_accepted/")] // The ending / is required for Twitch reasons
                            // TODO: test this
 async fn twitch_login_rejected(query: Query<auth::TwitchLoginFailResponse>) -> impl Responder {
-    login::twitch_login_failed(&query.state, &query.error, &query.error_description);
+    login::user::twitch_login_failed(&query.state, &query.error, &query.error_description);
     HttpResponse::Ok().body(format!(
         "Login accepted. error:{} error_description:{} state:{}",
         query.error, query.error_description, query.state

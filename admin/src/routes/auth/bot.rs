@@ -18,8 +18,8 @@ async fn twitch_bot_login_initiate(path: Path<i32>) -> impl Responder {
     let scope = "chat:read chat:edit";
     let owner_id = path.into_inner();
 
-    login::initiate_login(&state, &scope, false, true);
-    login::add_bot_owner(&state, &owner_id);
+    login::user::initiate_login(&state, &scope, false, true);
+    login::bot::add_bot_owner(&state, &owner_id);
 
     redirect(
         "/bot_login",
@@ -43,7 +43,7 @@ async fn twitch_bot_login_accepted(
     let bot_owner_id = database::channel::bot_owner_from_state(&query.state).await;
     let bot_login = bot_login.expect("Login was invalid");
 
-    database::login::save_initial_bot_details(&query.state, &bot_id, &bot_login, &bot_owner_id);
+    login::bot::save_initial_bot_details(&query.state, &bot_id, &bot_login, &bot_owner_id);
 
     HttpResponse::Ok().body(format!(
         "You have succesfully registered {} as a chatbot powered by TheCatsInChat (in channel #{})!\n You can close this tab/window.",
@@ -55,7 +55,7 @@ async fn twitch_bot_login_accepted(
 #[get("/bot_login_accepted/")] // The ending / is required for Twitch reasons
                                // TODO: test this
 async fn twitch_bot_login_rejected(query: Query<auth::TwitchLoginFailResponse>) -> impl Responder {
-    login::twitch_login_failed(&query.state, &query.error, &query.error_description);
+    login::user::twitch_login_failed(&query.state, &query.error, &query.error_description);
     HttpResponse::Ok().body(format!(
         "Login accepted. error:{} error_description:{} state:{}",
         query.error, query.error_description, query.state

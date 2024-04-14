@@ -41,3 +41,42 @@ pub async fn update_bot_access_token(state: &str, new_login_process: LoginProces
         .get_result(connection)
         .unwrap()
 }
+
+
+/// After validation, twitch hands back the user id and login, thesse are useful, so we save them
+pub fn save_initial_bot_details(state: &str, id: &i32, login: &str, bot_owner: &i32) {
+    let connection = &mut establish_connection();
+
+    // Delete any old logins/attempts for this channel (one bot per channel)
+    diesel::delete(twitch_bot::table.filter(twitch_bot::channel_id.eq(bot_owner)))
+        .execute(connection)
+        .expect("Unable to delete other associated bots");
+
+    // Then write a new record since we are given all the info we need
+    diesel::insert_into(twitch_bot::table)
+        .values((
+            twitch_bot::id.eq(id),
+            twitch_bot::login.eq(login),
+            twitch_bot::state.eq(state),
+            twitch_bot::channel_id.eq(bot_owner),
+        ))
+        // There shouldn't be any collisions given the above deletion
+        .execute(connection)
+        .expect("Failed to save access token");
+}
+
+
+// Set the channel_id for the owner's channel to associate the two during the bot login process
+pub fn add_bot_owner(state: &str, owner_id: &i32) {
+    let connection = &mut establish_connection();
+    diesel::insert_into(twitch_bot::table)
+        .values((
+            twitch_bot::state.eq(state),
+            twitch_bot::channel_id.eq(owner_id),
+        ))
+        // .on_conflict(twitch_bot::channel_id)
+        // .do_update()
+        // .set(twitch_bot::state.eq(state))
+        .execute(connection)
+        .expect("Failed to save bot access token");
+}

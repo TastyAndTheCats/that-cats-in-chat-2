@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use twitch_irc::login::{TokenStorage, UserAccessToken};
 
-use database::{bot, login};
+use database::login::{bot, user};
 
 #[derive(Debug)]
 pub struct RefreshingTokenStorage {
@@ -16,7 +16,7 @@ impl TokenStorage for RefreshingTokenStorage {
 
     async fn load_token(&mut self) -> Result<UserAccessToken, Self::LoadError> {
         let chatbot_info = bot::bot_from_owner_id(&self.channel_id).await;
-        let login_info = login::bot_access_token(&chatbot_info.state).await;
+        let login_info = bot::bot_access_token(&chatbot_info.state).await;
         let token = login_info.access_token.unwrap();
         let refresh_token = login_info.refresh_token.unwrap();
         let created_at = login_info.initiated_at.and_utc();

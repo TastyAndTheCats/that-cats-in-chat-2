@@ -11,7 +11,7 @@ mod user;
 async fn validate_twitch_login(
     query: &Query<auth::TwitchLoginSuccessResponse>,
 ) -> [Option<String>; 2] {
-    login::twitch_login_successful(&query.state, &query.scope, &query.code);
+    login::user::twitch_login_successful(&query.state, &query.scope, &query.code);
     is_twitch_login_valid(&get_access_token_from_twitch(&query).await).await
 }
 
@@ -30,7 +30,7 @@ async fn get_access_token_from_twitch(query: &Query<auth::TwitchLoginSuccessResp
         .as_str()
         .expect("No access_token provided in secret handshake response");
 
-    login::save_new_access_token(
+    login::user::save_new_access_token(
         &query.state,
         &handshake_json["refresh_token"].as_str().unwrap(),
         &handshake_json["expires_in"].to_string(),
