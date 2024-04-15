@@ -4,20 +4,20 @@
 use crate::schema;
 use diesel::prelude::*;
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = schema::twitch_bot_responders)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchResponder {
-    title: String,
-    response: String,
-    starts_with: Option<String>,
-    ends_with: Option<String>,
-    contains: Option<String>,
-    requires_broadcaster: Option<bool>,
-    requires_moderator: Option<bool>,
-    requires_vip: Option<bool>,
-    requires_subscriber: Option<bool>,
-    requires_follower: Option<bool>,
+    pub title: String,
+    pub response: String,
+    pub starts_with: Option<String>,
+    pub ends_with: Option<String>,
+    pub contains: Option<String>,
+    pub requires_broadcaster: bool,
+    pub requires_moderator: bool,
+    pub requires_vip: bool,
+    pub requires_subscriber: bool,
+    pub requires_follower: bool,
 }
 
 impl Default for TwitchResponder {
@@ -28,11 +28,20 @@ impl Default for TwitchResponder {
             starts_with: None,
             ends_with: None,
             contains: None,
-            requires_broadcaster: Some(false),
-            requires_moderator: Some(false),
-            requires_vip: Some(false),
-            requires_subscriber: Some(false),
-            requires_follower: Some(false),
+            requires_broadcaster: false,
+            requires_moderator: false,
+            requires_vip: false,
+            requires_subscriber: false,
+            requires_follower: false,
         }
     }
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = schema::user_selected_responders)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct UserSelectedResponder {
+    pub user_id: i32,
+    pub responder_id: i32,
+    pub active: bool,
 }

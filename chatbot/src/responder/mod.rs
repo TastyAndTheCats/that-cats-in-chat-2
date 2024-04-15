@@ -4,7 +4,7 @@ use std::env;
 use crate::types::TwitchClientType;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
-async fn send_message(client: &TwitchClientType, channel_name: String, message: &str) {
+async fn send_message_to(client: &TwitchClientType, channel_name: String, message: &str) {
     client
         .say(channel_name, message.to_owned())
         .await
@@ -12,16 +12,16 @@ async fn send_message(client: &TwitchClientType, channel_name: String, message: 
 }
 
 /// Send a message to the TWITCH_CHANNEL
-async fn send_default_message(client: &TwitchClientType, message: &str) {
+pub async fn send(client: &TwitchClientType, message: &str) {
     let channel_name =
         env::var("TWITCH_CHANNEL").expect("Missing TWITCH_CHANNEL environment variable.");
-    send_message(client, channel_name, message).await;
+    send_message_to(client, channel_name, message).await;
 }
 
 // Send the classic TCIC HeyGuys startup message
-pub async fn say_hello(client: &TwitchClientType) {
-    send_default_message(client, "HeyGuys").await;
-}
+// pub async fn say_hello(client: &TwitchClientType) {
+//     send_default_message(client, "HeyGuys").await;
+// }
 
 // pub async fn test_command(client: &TwitchClientType) {
 //     send_default_message(

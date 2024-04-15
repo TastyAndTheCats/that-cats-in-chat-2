@@ -14,7 +14,7 @@ diesel::table! {
         id -> Int4,
         #[max_length = 1000]
         title -> Varchar,
-        active -> Nullable<Bool>,
+        active -> Bool,
         parent -> Nullable<Int4>,
     }
 }
@@ -25,7 +25,7 @@ diesel::table! {
         responder_group_id -> Nullable<Int4>,
         #[max_length = 1000]
         title -> Varchar,
-        active -> Nullable<Bool>,
+        active -> Bool,
         #[max_length = 500]
         starts_with -> Nullable<Varchar>,
         #[max_length = 500]
@@ -34,11 +34,11 @@ diesel::table! {
         contains -> Nullable<Varchar>,
         #[max_length = 500]
         response -> Varchar,
-        requires_broadcaster -> Nullable<Bool>,
-        requires_moderator -> Nullable<Bool>,
-        requires_vip -> Nullable<Bool>,
-        requires_subscriber -> Nullable<Bool>,
-        requires_follower -> Nullable<Bool>,
+        requires_broadcaster -> Bool,
+        requires_moderator -> Bool,
+        requires_vip -> Bool,
+        requires_subscriber -> Bool,
+        requires_follower -> Bool,
     }
 }
 
@@ -66,18 +66,18 @@ diesel::table! {
 }
 
 diesel::table! {
-    user_selected_modules (user_id) {
+    user_selected_modules (user_id, responder_group_id) {
         user_id -> Int4,
-        responder_group_id -> Nullable<Int4>,
-        active -> Nullable<Bool>,
+        responder_group_id -> Int4,
+        active -> Bool,
     }
 }
 
 diesel::table! {
-    user_selected_responders (user_id) {
+    user_selected_responders (user_id, responder_id) {
         user_id -> Int4,
-        responder_id -> Nullable<Int4>,
-        active -> Nullable<Bool>,
+        responder_id -> Int4,
+        active -> Bool,
     }
 }
 

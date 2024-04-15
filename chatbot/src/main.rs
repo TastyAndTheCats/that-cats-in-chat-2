@@ -17,6 +17,7 @@ mod handler;
 mod responder;
 mod types;
 
+use database::models::responders::TwitchResponder;
 use types::TwitchClientType;
 
 /// Run the chatbot stack and connect the authenticated chatbot to the TWITCH_CHANNEL provided in .env
@@ -45,17 +46,32 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
     client.join(channel).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
                                    // I'm just working on getting the bot going for now, but we'll probably need to use this ability in order to scale efficiently.
 
-    bot_initialization(&client).await;
+    let responders = bot_initialization(&client).await;
 
-    tokio::spawn(async move { handler::dispatch(&client.clone(), incoming_messages).await })
+    tokio::spawn(
+        async move { handler::dispatch(&client.clone(), incoming_messages, &responders).await },
+    )
 }
 
 /// Things that need to happen before the bot starts listening to the channel
-async fn bot_initialization(client: &TwitchClientType) {
+async fn bot_initialization(client: &TwitchClientType) -> Vec<TwitchResponder> {
     // Load the available responders for this user
     let channel_id = utils::parse_id(
         env::var("TWITCH_CHANNEL_ID").expect("Missing TWITCH_CHANNEL_ID environment variable."),
     );
     let responders = database::bot::get_responders_list(channel_id).await;
-    responder::say_hello(client).await; // You cheeky little...
+
+    println!("{:?}", responders);
+
+    for responder in &responders {
+        match responder.title.as_str() {
+            "Say Hello" => {
+                responder::send(client, &responder.response).await;
+                // You cheeky little...
+            }
+            _ => {}
+        }
+    }
+
+    responders
 }
