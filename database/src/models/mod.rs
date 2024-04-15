@@ -1,7 +1,11 @@
 //! Models for using the Diesel schema as objects
 //! The objects are sort of self documening as to where they're from and what they're representing, so the comments here are minimal
+//!
 
+use crate::schema;
 use diesel::prelude::*;
+
+pub mod responders;
 
 // #[derive(Queryable, Selectable)]
 // #[diesel(table_name = crate::schema::twitch_channel)]
@@ -15,7 +19,7 @@ use diesel::prelude::*;
 // }
 
 #[derive(Queryable, Selectable, Insertable)]
-#[diesel(table_name = crate::schema::twitch_login_process)]
+#[diesel(table_name = schema::twitch_login_process)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct LoginProcess {
     pub state: String,
@@ -31,7 +35,7 @@ pub struct LoginProcess {
 }
 
 #[derive(Queryable, Selectable)]
-#[diesel(table_name = crate::schema::twitch_user)]
+#[diesel(table_name = schema::twitch_user)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchUser {
     pub id: i32,
@@ -40,7 +44,7 @@ pub struct TwitchUser {
 }
 
 #[derive(Queryable, Selectable)]
-#[diesel(table_name = crate::schema::twitch_bot)]
+#[diesel(table_name = schema::twitch_bot)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchBot {
     pub state: String,

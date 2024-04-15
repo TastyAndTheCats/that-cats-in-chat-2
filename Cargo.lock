@@ -647,9 +647,11 @@ dependencies = [
 name = "database"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "chrono",
  "diesel",
  "dotenvy",
+ "twitch-irc",
 ]
 
 [[package]]

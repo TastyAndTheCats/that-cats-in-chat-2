@@ -7,7 +7,7 @@ use tokio::{self, sync::mpsc::UnboundedReceiver};
 use twitch_irc::message::ServerMessage;
 
 mod privmsgs;
-use crate::definitions::types::TwitchClientType;
+use crate::types::TwitchClientType;
 
 /// Decides what sort of message is being received by the chatbot and what to do about it
 pub async fn dispatch(

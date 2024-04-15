@@ -15,9 +15,11 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
 
+pub mod bot;
 pub mod channel;
 pub mod login;
-mod models;
+pub mod models;
+
 mod schema;
 
 /// Creates a new connection to the database

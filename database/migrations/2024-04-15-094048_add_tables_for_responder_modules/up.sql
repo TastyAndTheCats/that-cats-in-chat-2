@@ -46,7 +46,7 @@ VALUES (1, '!test', '!test', 'TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchCo
 
 -- Allow users to turn on and off whole modules
 CREATE TABLE user_selected_modules (
-    user_id BIGINT REFERENCES twitch_user(id) PRIMARY KEY,
+    user_id INTEGER REFERENCES twitch_user(id) PRIMARY KEY,
     responder_group_id INTEGER REFERENCES twitch_bot_responder_groups(id),
     active BOOLEAN DEFAULT true,
 
@@ -58,7 +58,7 @@ VALUES (167591621, 1);
 
 -- Allow users to turn on and off specific responders in a module
 CREATE TABLE user_selected_responders (
-    user_id BIGINT REFERENCES twitch_user(id) PRIMARY KEY,
+    user_id INTEGER REFERENCES twitch_user(id) PRIMARY KEY,
     responder_id INTEGER REFERENCES twitch_bot_responders(id),
     active BOOLEAN DEFAULT true,
 

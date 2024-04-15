@@ -13,33 +13,49 @@ use std::env;
 use tokio;
 
 mod auth;
-mod definitions;
 mod handler;
 mod responder;
+mod types;
 
-use responder::say_hello;
+use types::TwitchClientType;
 
 /// Run the chatbot stack and connect the authenticated chatbot to the TWITCH_CHANNEL provided in .env
 /// NOTE: if your authentication fails it might be a permissions issue not an auth issue
 #[tokio::main]
 pub async fn main() {
+    start_app();
+    let bot = start_bot().await;
+    bot.await.unwrap();
+}
+
+/// Things needed for the app to work
+fn start_app() {
     tracing_subscriber::fmt::init(); // Logging setup
     dotenv().expect(".env file not found"); // load environment variables from .env file
+}
 
+/// Things needed for the bot to work
+async fn start_bot() -> tokio::task::JoinHandle<()> {
     let (client, incoming_messages) = auth::configure_chatbot().await;
+    let channel = env::var("TWITCH_CHANNEL")
+        .expect("Missing TWITCH_CHANNEL environment variable.")
+        .to_ascii_lowercase()
+        .to_owned();
 
-    client
-        .join(
-            env::var("TWITCH_CHANNEL")
-                .expect("Missing TWITCH_CHANNEL environment variable.")
-                .to_ascii_lowercase()
-                .to_owned(),
-        )
-        .unwrap();
+    client.join(channel).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
+                                   // I'm just working on getting the bot going for now, but we'll probably need to use this ability in order to scale efficiently.
 
-    say_hello(&client).await;
+    bot_initialization(&client).await;
 
-    let join_handle =
-        tokio::spawn(async move { handler::dispatch(&client, incoming_messages).await });
-    join_handle.await.unwrap();
+    tokio::spawn(async move { handler::dispatch(&client.clone(), incoming_messages).await })
+}
+
+/// Things that need to happen before the bot starts listening to the channel
+async fn bot_initialization(client: &TwitchClientType) {
+    // Load the available responders for this user
+    let channel_id = utils::parse_id(
+        env::var("TWITCH_CHANNEL_ID").expect("Missing TWITCH_CHANNEL_ID environment variable."),
+    );
+    let responders = database::bot::get_responders_list(channel_id).await;
+    responder::say_hello(client).await; // You cheeky little...
 }

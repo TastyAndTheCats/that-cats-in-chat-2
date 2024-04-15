@@ -1,7 +1,7 @@
 //! Contains all of the messages sent by the bot
 use std::env;
 
-use crate::definitions::types::TwitchClientType;
+use crate::types::TwitchClientType;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
 async fn send_message(client: &TwitchClientType, channel_name: String, message: &str) {
@@ -23,10 +23,10 @@ pub async fn say_hello(client: &TwitchClientType) {
     send_default_message(client, "HeyGuys").await;
 }
 
-pub async fn test_command(client: &TwitchClientType) {
-    send_default_message(
-        client,
-        "TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE",
-    )
-    .await;
-}
+// pub async fn test_command(client: &TwitchClientType) {
+//     send_default_message(
+//         client,
+//         "TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE",
+//     )
+//     .await;
+// }

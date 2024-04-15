@@ -67,7 +67,7 @@ diesel::table! {
 
 diesel::table! {
     user_selected_modules (user_id) {
-        user_id -> Int8,
+        user_id -> Int4,
         responder_group_id -> Nullable<Int4>,
         active -> Nullable<Bool>,
     }
@@ -75,7 +75,7 @@ diesel::table! {
 
 diesel::table! {
     user_selected_responders (user_id) {
-        user_id -> Int8,
+        user_id -> Int4,
         responder_id -> Nullable<Int4>,
         active -> Nullable<Bool>,
     }
