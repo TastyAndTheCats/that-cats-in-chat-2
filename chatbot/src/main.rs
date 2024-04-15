@@ -59,14 +59,13 @@ async fn bot_initialization(client: &TwitchClientType) -> Vec<TwitchResponder> {
     let channel_id = utils::parse_id(
         env::var("TWITCH_CHANNEL_ID").expect("Missing TWITCH_CHANNEL_ID environment variable."),
     );
+
     let responders = database::bot::get_responders_list(channel_id).await;
-
-    println!("{:?}", responders);
-
-    for responder in &responders {
-        match responder.title.as_str() {
+    for r in &responders {
+        println!("{:?}", r);
+        match r.title.as_str() {
             "Say Hello" => {
-                responder::send(client, &responder.response).await;
+                responder::send(client, &r.response.as_ref().unwrap()).await;
                 // You cheeky little...
             }
             _ => {}

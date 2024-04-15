@@ -9,7 +9,8 @@ use diesel::prelude::*;
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchResponder {
     pub title: String,
-    pub response: String,
+    pub response: Option<String>,
+    pub response_fn: Option<String>,
     pub starts_with: Option<String>,
     pub ends_with: Option<String>,
     pub contains: Option<String>,
@@ -24,7 +25,8 @@ impl Default for TwitchResponder {
     fn default() -> TwitchResponder {
         TwitchResponder {
             title: "".to_owned(),
-            response: "".to_owned(),
+            response: Some("".to_string()),
+            response_fn: None,
             starts_with: None,
             ends_with: None,
             contains: None,
