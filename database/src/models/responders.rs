@@ -14,11 +14,6 @@ pub struct TwitchResponder {
     pub starts_with: Option<String>,
     pub ends_with: Option<String>,
     pub contains: Option<String>,
-    pub requires_broadcaster: bool,
-    pub requires_moderator: bool,
-    pub requires_vip: bool,
-    pub requires_subscriber: bool,
-    pub requires_follower: bool,
 }
 
 impl Default for TwitchResponder {
@@ -30,11 +25,6 @@ impl Default for TwitchResponder {
             starts_with: None,
             ends_with: None,
             contains: None,
-            requires_broadcaster: false,
-            requires_moderator: false,
-            requires_vip: false,
-            requires_subscriber: false,
-            requires_follower: false,
         }
     }
 }

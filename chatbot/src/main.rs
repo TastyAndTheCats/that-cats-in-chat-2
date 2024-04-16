@@ -65,7 +65,7 @@ async fn bot_initialization(client: &TwitchClientType) -> Vec<TwitchResponder> {
         println!("{:?}", r);
         match r.title.as_str() {
             "Say Hello" => {
-                responder::send(client, &r.response.as_ref().unwrap()).await;
+                responder::send(client, r.response.as_ref().unwrap().to_string()).await;
                 // You cheeky little...
             }
             _ => {}
