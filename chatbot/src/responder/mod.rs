@@ -41,7 +41,7 @@ pub async fn run(
         }
         _ => {
             if response_fn.starts_with("core") {
-                core::dispatch(responder, msg, command).await
+                core::dispatch(client, responder, msg, command).await
             } else {
                 println!("Unknown response Function: {}", response_fn);
                 "".to_owned()
