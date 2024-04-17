@@ -52,3 +52,10 @@ pub struct TwitchBot {
     pub login: Option<String>,
     pub channel_id: i32,
 }
+
+#[derive(Queryable, Selectable, Debug)]
+#[diesel(table_name = schema::twitch_login_process)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct TwitchLoginAccessToken {
+    pub access_token: Option<String>,
+}

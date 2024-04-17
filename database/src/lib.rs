@@ -22,6 +22,11 @@ pub mod models;
 
 mod schema;
 
+use models::TwitchBot;
+use schema::{twitch_login_process, twitch_user};
+
+use crate::models::TwitchLoginAccessToken;
+
 /// Creates a new connection to the database
 // TODO: I *think* these connections will drop when the function using them is over, but I should test that
 fn establish_connection() -> PgConnection {
@@ -30,4 +35,15 @@ fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
+pub fn twitch_access_token() -> Option<String> {
+    let connection = &mut establish_connection();
+    let access_token_wrapper = twitch_user::table
+        .inner_join(twitch_login_process::table)
+        .filter(twitch_user::id.eq(167591621))
+        .select(TwitchLoginAccessToken::as_select())
+        .get_result(connection)
+        .unwrap();
+    access_token_wrapper.access_token
 }

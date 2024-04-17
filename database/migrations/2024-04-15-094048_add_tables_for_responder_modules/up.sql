@@ -24,7 +24,25 @@ VALUES
     (10, 'YouTube', 4),
     (11, 'Chatter Status', 1),
     (12, 'Mathematics', 1),
-    (13, 'Niceties', 1);
+    (13, 'Niceties', 1),
+
+    (14, 'Emoji', 1),
+    
+    (15, 'Food', 14),
+    (16, 'Personal', 14),
+    (17, 'Shapes', 14),
+    (18, 'Events', 14),
+    
+    (19, 'Baked Goods', 15),
+    (20, 'Dairy', 15),
+    (21, 'Desserts', 15),
+    (22, 'Drinks', 15),
+    (23, 'Fortune Cookie', 15),
+    (24, 'Fruits', 15),
+    (25, 'Meals', 15),
+    (26, 'Meats', 15),
+    (27, 'Utensils', 15),
+    (28, 'Vegetables', 15);
 
 -- Definitions of responders
 CREATE TABLE
@@ -52,13 +70,12 @@ CREATE TABLE
 
 -- just response
 INSERT INTO
-    twitch_bot_responders (id, responder_group_id, title, STARTS_WITH, contains, ends_with, response)
+    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response)
 VALUES
-    (1, 1, 'Say Hello', 'hello!', NULL, NULL, 'HeyGuys'),
-    (2, 1, '!test Command', NULL, '!test', NULL, 'TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE'),
-    (24, 11, 'Lurk', NULL, '!lurk', NULL, 'have distracted {sender} and they are now playing with the kitties'),
+    (1, 'Say Hello', 'hello!', NULL, NULL, 'HeyGuys'),
+    (1, '!test Command', NULL, '!test', NULL, 'TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE'),
+    (11, 'Lurk', NULL, '!lurk', NULL, 'have distracted {sender} and they are now playing with the kitties'),
     (
-        25,
         11,
         'Unlurk',
         NULL,
@@ -66,11 +83,10 @@ VALUES
         NULL,
         'has released {sender} from the cuteness trap and they have returned to spend time in chat'
     ),
-    (26, 11, 'BRB', NULL, '!brb', NULL, 'have momentarily distracted {sender}'),
-    (27, 11, 'UnBRB', NULL, '!back', NULL, 'have become bored with {sender} and have allowed them to return to chat'),
-    (30, 13, 'Illuminati', NULL, 'illuminati', NULL, 'TheIlluminati TheIlluminati TheIlluminati TheIlluminati TheIlluminati'),
+    (11, 'BRB', NULL, '!brb', NULL, 'have momentarily distracted {sender}'),
+    (11, 'UnBRB', NULL, '!back', NULL, 'have become bored with {sender} and have allowed them to return to chat'),
+    (13, 'Illuminati', NULL, 'illuminati', NULL, 'TheIlluminati TheIlluminati TheIlluminati TheIlluminati TheIlluminati'),
     (
-        31,
         13,
         'English Please!',
         '!english',
@@ -81,7 +97,6 @@ VALUES
         / انجليزي فقط. شكرا / que l''anglais / English only Please! Thank you. 💗'
     ),
     (
-        32,
         13,
         'TERRIBLE',
         NULL,
@@ -91,10 +106,9 @@ VALUES
         This will end your misery abruptly 🏳️ hope it''s working'
     ),
     (
-        33,
         13,
         'Suicide Hotline',
-        '!hotline', 
+        '!hotline',
         NULL,
         NULL,
         'If you or someone you know is contemplating suicide, please reach out to a professional. 
@@ -105,44 +119,136 @@ VALUES
         => Trans Lifeline (877-565-8860) 
         => Others: https://en.wikipedia.org/wiki/List_of_suicide_crisis_lines https://suicidepreventionlifeline.org'
     ),
-    (34, 13, 'Hello!', '!hello', NULL, NULL, 'Hello {sender}! HeyGuys'),
-    (36, 13, 'Are you Muted?', NULL, '!muted', NULL, 'Hey {channel_name}, I think you''re muted! {sender} says they can''t hear you!'),
-    (37, 13, 'FPS Issue', NULL, '!fps|!frames|!framedrop', NULL, 'Hey {channel_name}, you might be dropping frames - {sender} says they''re having trouble with your video feed'),
-    (38, 13, 'Wrong Scene', NULL, '!muted', NULL, 'Hey {channel_name}, check your feed - {sender} says they think you''re broadcasting the wrong scene');
+    (13, 'Hello!', '!hello', NULL, NULL, 'Hello {sender}! HeyGuys'),
+    (13, 'Are you Muted?', NULL, '!muted', NULL, 'Hey {channel_name}, I think you''re muted! {sender} says they can''t hear you!'),
+    (
+        13,
+        'FPS Issue',
+        NULL,
+        '!fps|!frames|!framedrop',
+        NULL,
+        'Hey {channel_name}, you might be dropping frames - {sender} says they''re having trouble with your video feed'
+    ),
+    (
+        13,
+        'Wrong Scene',
+        NULL,
+        '!muted',
+        NULL,
+        'Hey {channel_name}, check your feed - {sender} says they think you''re broadcasting the wrong scene'
+    );
 
 -- just response_fn
 INSERT INTO
-    twitch_bot_responders (id, responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
+    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
 VALUES
-    (3, 1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
-    (5, 6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?|epic', 'api::epic_store::free_games'),
-    (6, 7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
-    (7, 7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
-    (8, 7, 'Number Facts', NULL, '!numfact|!numberfact', NULL, 'core::facts::dognumfactfact'),
-    (9, 7, 'Chuck Norris Facts', NULL, '!chuckfact|!norrisfact|!cnfact|!chucknorris', NULL, 'core::facts::chucknorris'),
-    (10, 7, 'Advice', NULL, '!advice', NULL, 'core::facts::advice'),
-    (11, 7, 'Dad Joke', NULL, '!dadjoke', NULL, 'core::facts::dadjoke'),
-    (12, 8, 'Time', '!time', NULL, NULL, 'core::info::time'),
-    (13, 8, 'Weather', '!weather', NULL, NULL, 'core::info::weather'),
-    (14, 4, 'Wikia', '!wikia', NULL, NULL, 'api::wikia::lookup'),
-    (15, 4, 'Wikipedia (Long)', '!wikipedia', NULL, NULL, 'api::wikipedia::lookup_full'),
-    (16, 4, 'Wikipedia (Short)', '!wiki', NULL, NULL, 'api::wikipedia::lookup'),
-    (17, 8, 'Dictionary', '!dict|!dictionary|!define|!def', NULL, NULL, 'core::info::dictionary'),
-    (18, 8, 'Thesaurus', '!thesaurus|!wordslike', NULL, NULL, 'core::info::thesaurus'),
-    (19, 9, 'Set Game', '!setgame', NULL, NULL, 'core::twitch::set_game'),
-    (20, 9, 'Set Title', '!settitle', NULL, NULL, 'core::twitch::set_title'),
-    (21, 10, 'Youtube Video Info', NULL, 'youtube.com|youtu.be', NULL, 'core::youtube::get_video_info'),
-    (22, 1, 'Chatbot Info', NULL, '!thecats|!thecatsinchat|!tcic', NULL, 'core::info'),
-    (23, 1, 'Chatbot Commands', NULL, '!commands|!catcommands', NULL, 'core::commands'),
-    (28, 12, 'Prime Number Checking', '!isprime|!primecheck', NULL, NULL, 'core::maths::prime_check'),
-    (29, 12, 'Coin Flip', NULL, '!coinflip|!flipcoin|!cointoss|!tosscoin', NULL, 'core::maths::coin_toss'),
-    (35, 13, 'Shoutout', NULL, '!gowatch|!gofollow|!so', NULL, 'core::niceties::shoutout');
+    (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
+    (6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?|epic', 'api::epic_store::free_games'),
+    (7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
+    (7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
+    (7, 'Number Facts', NULL, '!numfact|!numberfact', NULL, 'core::facts::dognumfactfact'),
+    (7, 'Chuck Norris Facts', NULL, '!chuckfact|!norrisfact|!cnfact|!chucknorris', NULL, 'core::facts::chucknorris'),
+    (7, 'Advice', NULL, '!advice', NULL, 'core::facts::advice'),
+    (7, 'Dad Joke', NULL, '!dadjoke', NULL, 'core::facts::dadjoke'),
+    (8, 'Time', '!time', NULL, NULL, 'core::info::time'),
+    (8, 'Weather', '!weather', NULL, NULL, 'core::info::weather'),
+    (4, 'Wikia', '!wikia', NULL, NULL, 'api::wikia::lookup'),
+    (4, 'Wikipedia (Long)', '!wikipedia', NULL, NULL, 'api::wikipedia::lookup_full'),
+    (4, 'Wikipedia (Short)', '!wiki', NULL, NULL, 'api::wikipedia::lookup'),
+    (8, 'Dictionary', '!dict|!dictionary|!define|!def', NULL, NULL, 'core::info::dictionary'),
+    (8, 'Thesaurus', '!thesaurus|!wordslike', NULL, NULL, 'core::info::thesaurus'),
+    (9, 'Set Game', '!setgame', NULL, NULL, 'core::twitch::set_game'),
+    (9, 'Set Title', '!settitle', NULL, NULL, 'core::twitch::set_title'),
+    (10, 'Youtube Video Info', NULL, 'youtube.com|youtu.be', NULL, 'core::youtube::get_video_info'),
+    (1, 'Chatbot Info', NULL, '!thecats|!thecatsinchat|!tcic', NULL, 'core::info'),
+    (1, 'Chatbot Commands', NULL, '!commands|!catcommands', NULL, 'core::commands'),
+    (12, 'Prime Number Checking', '!isprime|!primecheck', NULL, NULL, 'core::maths::prime_check'),
+    (12, 'Coin Flip', NULL, '!coinflip|!flipcoin|!cointoss|!tosscoin', NULL, 'core::maths::coin_toss'),
+    (13, 'Shoutout', NULL, '!gowatch|!gofollow|!so', NULL, 'core::niceties::shoutout');
 
 -- response and response_fn
 INSERT INTO
-    twitch_bot_responders (id, responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
+    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
 VALUES
-    (4, 1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
+    (1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
+
+-- just response_fn and only starts_with
+INSERT INTO
+    twitch_bot_responders (responder_group_id, title, STARTS_WITH, response_fn)
+VALUES
+    (19, 'Cookies', '!cookie|!biscuit|!cookies|!biscuits', 'core::emoji::baked_goods::cookies'),
+    (19, 'Cupcakes', '!cupcake|!cupcakes', 'core::emoji::baked_goods::cupcakes'),
+    (19, 'Muffins', '!muffin|!muffins', 'core::emoji::baked_goods::muffins'),
+    (19, 'Bread', '!bread|!loaf|!breads|!loaves', 'core::emoji::baked_goods::bread'),
+    (19, 'Croissants', '!croissant|!croissants', 'core::emoji::baked_goods::croissants'),
+    (19, 'Baguettes', '!baguette|!baguettes', 'core::emoji::baked_goods::baguettes'),
+    (19, 'Pretzels', '!pretzel|!pretzels', 'core::emoji::baked_goods::pretzels'),
+    (19, 'Bagels', '!bagel|!bagels', 'core::emoji::baked_goods::bagels'),
+    (19, 'Pancakes', '!pancake|!pancakes', 'core::emoji::baked_goods::pancakes'),
+    (19, 'Waffles', '!waffle|!waffles', 'core::emoji::baked_goods::waffles'),
+    (19, 'Flatbreads', '!flatbread|!flatbreads', 'core::emoji::baked_goods::flatbreads'),
+    (19, 'Rice Crackers', '!ricecracker|!ricecrackers', 'core::emoji::baked_goods::rice_crackers'),
+    (19, 'Moon Cakes', '!mooncake|!mooncakes', 'core::emoji::baked_goods::moon_cakes'),
+    (19, 'Doughnuts', '!doughnut|!donut|!doughnuts|!donuts', 'core::emoji::baked_goods::doughnuts'),
+    (19, 'Birthday Cake', '!birthdaycake', 'core::emoji::baked_goods::birthday_cake'),
+    (19, 'Cakes', '!shortcake|!cakeslice|!shortcakes|!cakes|!cakeslices', 'core::emoji::baked_goods::cakes'),
+    (19, 'Pies', '!pie|!pies', 'core::emoji::baked_goods::pies'),
+    (19, 'Pie Slice', '!pieslice|!sliceofpie', 'core::emoji::baked_goods::pie_slice'),
+    (20, 'Cheese', '!cheese', 'core::emoji::dairy::cheese'),
+    (20, 'Butter', '!butter', 'core::emoji::dairy::butter'),
+    (20, 'Ice Cream', '!icecream', 'core::emoji::dairy::ice_cream'),
+    (21, 'Shaved Ice', '!shavedice|!icecone', 'core::emoji::dessert::shaved_ice'),
+    (21, 'Gelato', '!gelato', 'core::emoji::dessert::gelato'),
+    (21, 'Chocolate', '!chocolate|!chocolatebar|!chocolates', 'core::emoji::dessert::chocolate'),
+    (21, 'Candy', '!candy|!candies', 'core::emoji::dessert::candies'),
+    (21, 'Lollipop', '!lollipop|!lollies|!lolly|!lollipops', 'core::emoji::dessert::lollipop'),
+    (21, 'Custard', '!custard|!flan|!flans|!custards', 'core::emoji::dessert::custard'),
+    (21, 'Honey', '!honey', 'core::emoji::dessert::honey'),
+    (22, 'Red Bull', '!redbull|!red bull|!redbulls', 'core::emoji::drinks::redbull'),
+    (22, 'Ice Cube', '!icecube', 'core::emoji::drinks::icecube'),
+    (22, 'Bottle', '!bottle|!babybottle', 'core::emoji::drinks::bottle'),
+    (22, 'Milk', 'milk|!glassesofmilk', 'core::emoji::drinks::milk'),
+    (22, 'Coffee', '!coffee|!coffees', 'core::emoji::drinks::coffee'),
+    (22, 'Tea', '!tea|!blacktea|!oolong|!teas', 'core::emoji::drinks::tea'),
+    (22, 'Green Tea', '!greentea|!matcha', 'core::emoji::drinks::green_tea'),
+    (22, 'Sake', '!sake|!sakes', 'core::emoji::drinks::sake'),
+    (22, 'Champagne', '!champagne|!cork', 'core::emoji::drinks::champagne'),
+    (22, 'Wine', '!wine|!glassesofwine"', 'core::emoji::drinks::wine'),
+    (22, 'Cocktail', '!cocktail', 'core::emoji::drinks::cocktail'),
+    (22, 'Martini', '!martini', 'core::emoji::drinks::martini'),
+    (22, 'Pina Colada', '!pinacolada', 'core::emoji::drinks::pina_colada'),
+    (22, 'Daquiri', '!daquiri', 'core::emoji::drinks::daquiri'),
+    (22, 'Margarita', '!margarita', 'core::emoji::drinks::margarita'),
+    (22, 'Tropical Drink', '!tropicaldrink|!fruitydrink', 'core::emoji::drinks::tropicaldrink'),
+    (22, 'Beer', '!beer|!beers', 'core::emoji::drinks::beer'),
+    (22, 'Cheers', '!cheers', 'core::niceties::cheers'),
+    (22, 'Stiff Drink', '!stiffdrink', 'core::emoji::drinks::stiff_drink'),
+    (22, 'Whiskey', '!whiskey', 'core::emoji::drinks::whiskey'),
+    (22, 'Solo Cup', '!solocup', 'core::emoji::drinks::solo_cup'),
+    (22, 'Soft Drink', '!softdrink|!pop|!soda|!coke', 'core::emoji::drinks::soft_drink'),
+    (22, 'Juice Box', '!juicebox|!juice|!juiceboxes', 'core::emoji::drinks::juice_box'),
+    (22, 'Yerba Mate', '!yerbamate|!yerba', 'core::emoji::drinks::yerba_mate'),
+    (23, 'Fortune Cookie', '!fortunecookie|!fortune', 'core::emoji::fortune_cookie'),
+    (24, 'Grapes', '!grape!grapes', 'core::emoji::fruit::grapes'),
+    (24, 'Melons', '!melon!melons', 'core::emoji::fruit::melons'),
+    (24, 'Watermelons', '!watermelon!watermelons', 'core::emoji::fruit::watermelons'),
+    (24, 'Tangerines', '!tangerine|!tangerines', 'core::emoji::fruit::tangerines'),
+    (24, 'Lemons', '!lemon|!lemons', 'core::emoji::fruit::lemons'),
+    (24, 'Bananas', '!banana|!bananas', 'core::emoji::fruit::bananas'),
+    (24, 'Pineapple', '!pineapple', 'core::emoji::fruit::pineapple'),
+    (24, 'Mangoes', '!mango|!mangoes', 'core::emoji::fruit::mangoes'),
+    (24, 'Apples', '!apple|!apples', 'core::emoji::fruit::apples'),
+    (24, 'Pears', '!pear|!pears', 'core::emoji::fruit::pears'),
+    (24, 'Peaches', '!peach|!peaches', 'core::emoji::fruit::peaches'),
+    (24, 'Cherries', '!cherry|!cherries', 'core::emoji::fruit::cherries'),
+    (24, 'Strawberries', '!strawberry|!strawberries', 'core::emoji::fruit::strawberries'),
+    (24, 'Kiwis', '!kiwi|!kiwis', 'core::emoji::fruit::kiwis'),
+    (24, 'Tomatoes', '!tomato|!tomatoes', 'core::emoji::fruit::tomatoes'),
+    (24, 'Coconuts', '!coconut|!coconuts', 'core::emoji::fruit::coconuts'),
+    (24, 'Avocados', '!avocado|!avocados', 'core::emoji::fruit::avocados'),
+    (24, 'Peppers', '!hotpepper|!jalapeno|!jalapeño|!habanero|!peppers|!hotpeppers|!jalapenos|!jalapeños|!habaneros', 'core::emoji::fruit::peppers'),
+    (24, 'Cucumber', '!cucumber', 'core::emoji::fruit::cucumber'),
+    (24, 'Jam', '!jam|!jamjar', 'core::emoji::fruit::jam');
 
 -- Set who can and can't use each command
 CREATE TABLE
@@ -226,55 +332,21 @@ CREATE TABLE
         PRIMARY KEY (user_id, responder_id)
     );
 
-INSERT INTO
-    user_selected_responders (user_id, responder_id)
-VALUES
-    (167591621, 1),
-    (167591621, 2),
-    (167591621, 3),
-    (167591621, 4),
-    -- ,
-    (167591621, 6),
-    (167591621, 7),
-    (167591621, 8),
-    (167591621, 9),
-    (167591621, 10),
-    (167591621, 11),
-    (167591621, 12),
-    (167591621, 13),
-    (167591621, 14),
-    (167591621, 15),
-    (167591621, 16),
-    (167591621, 17),
-    (167591621, 18),
-    (167591621, 19),
-    (167591621, 20),
-    (167591621, 21),
-    (167591621, 22),
-    -- ,
-    (167591621, 24),
-    (167591621, 25),
-    (167591621, 26),
-    (167591621, 27),
-    (167591621, 28),
-    (167591621, 29),
-    (167591621, 30),
-    (167591621, 31),
-    (167591621, 32),
-    -- ,
-    (167591621, 34),
-    (167591621, 35),
-    (167591621, 36),
-    (167591621, 37),
-    (167591621, 38);
+-- Adds all of the possible responses to TastyAndTheCats' bot
+-- NOTE: you have to set the 1..X here manually it's not a count
+DO $$
+DECLARE
+    row_count INTEGER;
+    counter INTEGER := 1;
+BEGIN
+    -- Count the number of rows in the responders table
+    SELECT COUNT(*) INTO row_count FROM twitch_bot_responders;
 
-INSERT INTO
-    user_selected_responders (user_id, responder_id, responder_profile, cooldown)
-VALUES
-    (167591621, 5, 2, 60),
-    (167591621, 23, 3, 30);
-
-INSERT INTO
-    user_selected_responders (user_id, responder_id, permissions)
-VALUES
-    (167591621, 33, 4);
+    -- Iterate over each row in the responders table
+    WHILE counter <= row_count LOOP
+        -- Insert a record into user_selected_responders for each responder for me
+        EXECUTE format('INSERT INTO user_selected_responders (user_id, responder_id) VALUES (167591621, %s)', counter);
+        counter := counter + 1;
+    END LOOP;
+END;
+$$;
