@@ -6,7 +6,7 @@ use crate::responder;
 use crate::types::TwitchClientType;
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
-use utils::rest_of_chat_message;
+use utils::message::rest_of_chat_message;
 
 mod automoderator;
 
