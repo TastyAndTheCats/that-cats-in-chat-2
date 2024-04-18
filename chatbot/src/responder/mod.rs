@@ -7,11 +7,12 @@ use database::models::responders::TwitchResponder;
 use crate::types::TwitchClientType;
 
 mod core;
+mod game;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
 async fn send_message_to(client: &TwitchClientType, channel_name: String, message: String) {
     client
-        .me(channel_name, message.to_owned())
+        .me(channel_name, message.replace('\n', "").to_owned())
         .await
         .expect("Couldn't send message!");
 }
@@ -30,27 +31,20 @@ pub async fn run(
     msg: &PrivmsgMessage,
     command: &str,
 ) {
-    let channel_name =
-        env::var("TWITCH_CHANNEL").expect("Missing TWITCH_CHANNEL environment variable.");
+    let channel_name = msg.channel_login.to_string();
     let response_fn = responder.response_fn.as_ref().unwrap();
 
     let message = match response_fn.as_str() {
         "" | "default" | "text" => responder.response.as_ref().unwrap().to_owned(),
-        "unpack_the_galaxy" => {
-            unpack_the_galaxy() // TODO: remove this
-        }
         _ => {
             if response_fn.starts_with("core") {
                 core::dispatch(client, responder, msg, command).await
+            } else if response_fn.starts_with("game") {
+                game::dispatch(client, responder, msg, command).await
             } else {
-                println!("Unknown response Function: {}", response_fn);
-                "".to_owned()
+                format!("Unknown response Function: {}", response_fn)
             }
         }
     };
     send_message_to(client, channel_name, message).await;
-}
-
-fn unpack_the_galaxy() -> String {
-    String::from("GalaxyUnpacked GalaxyUnpacked GalaxyUnpacked GalaxyUnpacked GalaxyUnpacked")
 }

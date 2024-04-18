@@ -6,12 +6,17 @@ use utils::message::single_word_after_command;
 
 use crate::types::TwitchClientType;
 
-pub async fn dispatch(client: &TwitchClientType, responder: &TwitchResponder, msg: &PrivmsgMessage, command: &str) -> String {
+pub async fn dispatch(
+    client: &TwitchClientType,
+    responder: &TwitchResponder,
+    msg: &PrivmsgMessage,
+    command: &str,
+) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
     if response_fn.starts_with("core::niceties::shoutout") {
         return cmd_shoutout(client, msg, command).await;
     } else {
-        return "Unknown Function".to_owned();
+        return "Unknown Function (niceties)".to_owned();
     }
 }
 
@@ -36,18 +41,29 @@ async fn cmd_shoutout(client: &TwitchClientType, msg: &PrivmsgMessage, command: 
     let so_name = user["display_name"].as_str().unwrap();
     let so_description = user["description"].as_str().unwrap();
 
-    client.privmsg(msg.channel_login.to_owned(), format!("/shoutout {}", so_name)).await.unwrap();
-
     let mut game_message = format!("{} hasn't streamed (yet), but they might!", so_name);
     if game_name != "" {
         game_message = format!("{} was last seen streaming {}!", so_name, game_name);
     }
 
+    do_builtin_twitch_shoutout(client, msg, so_name).await;
     format!(
         "Go check out {} at twitch.tv/{} and make a new friend?! {} ⟹⟹⟹ {}",
-        so_name,
-        so_name,
-        game_message,
-        so_description,
+        so_name, so_name, game_message, so_description,
     )
+}
+
+async fn do_builtin_twitch_shoutout(
+    client: &TwitchClientType,
+    msg: &PrivmsgMessage,
+    command: &str,
+) {
+    // NOTE: Doesn't seem to work
+    client
+        .privmsg(
+            msg.channel_login.to_owned(),
+            format!("/shoutout {}", command),
+        )
+        .await
+        .unwrap();
 }

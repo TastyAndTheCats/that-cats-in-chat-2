@@ -42,7 +42,8 @@ VALUES
     (25, 'Meals', 15),
     (26, 'Meats', 15),
     (27, 'Utensils', 15),
-    (28, 'Vegetables', 15);
+    (28, 'Vegetables', 15),
+    (29, 'Colony-Builders', 2);
 
 -- Definitions of responders
 CREATE TABLE
@@ -133,7 +134,7 @@ VALUES
         13,
         'Wrong Scene',
         NULL,
-        '!muted',
+        '!scene',
         NULL,
         'Hey {channel_name}, check your feed - {sender} says they think you''re broadcasting the wrong scene'
     );
@@ -248,7 +249,8 @@ VALUES
     (24, 'Avocados', '!avocado|!avocados', 'core::emoji::fruit::avocados'),
     (24, 'Peppers', '!hotpepper|!jalapeno|!jalapeño|!habanero|!peppers|!hotpeppers|!jalapenos|!jalapeños|!habaneros', 'core::emoji::fruit::peppers'),
     (24, 'Cucumber', '!cucumber', 'core::emoji::fruit::cucumber'),
-    (24, 'Jam', '!jam|!jamjar', 'core::emoji::fruit::jam');
+    (24, 'Jam', '!jam|!jamjar', 'core::emoji::fruit::jam'),
+    (26, 'Volunteer as Tribute', '!tribute|!dwarfme|!volunteer', 'games::colony::tribute');
 
 -- Set who can and can't use each command
 CREATE TABLE
