@@ -40,8 +40,6 @@ So I'm rewriting the core of the chatbot using Rust instead of Python.
 By rewriting the core in Rust I'm able to:  
 -  Take advantage of the memory-safety, speed, and other benefits of Rust,  
 -  Build the infrastructure in the right way instead of slapping parts of it together as I require it
--  Include all of the stand-alone modules from v1 of TCIC "easily", so I won't really have to rebuild that much of the functionality (just like db and admin)
-    - And this means I/you can write new modules in Rust and/or Python, which ~~is~~ will be nice.
 
 ### Okay but who are you?
 

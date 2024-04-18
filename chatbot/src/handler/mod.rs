@@ -3,16 +3,18 @@
 //! I'm thinking that will be the only function or functions in here
 //! Everything else will either be a module or a responder or I guess just a pure db response for e.g watcher points
 
+use database::models::responders::TwitchResponder;
 use tokio::{self, sync::mpsc::UnboundedReceiver};
 use twitch_irc::message::ServerMessage;
 
 mod privmsgs;
-use crate::definitions::types::TwitchClientType;
+use crate::types::TwitchClientType;
 
 /// Decides what sort of message is being received by the chatbot and what to do about it
 pub async fn dispatch(
     client: &TwitchClientType,
     mut incoming_messages: UnboundedReceiver<ServerMessage>,
+    responders: &Vec<TwitchResponder>,
 ) {
     while let Some(message) = incoming_messages.recv().await {
         match message {
@@ -23,7 +25,7 @@ pub async fn dispatch(
                     &msg.sender.name,
                     &msg.message_text
                 );
-                privmsgs::dispatch(client, msg).await;
+                privmsgs::dispatch(client, msg, responders).await;
             }
 
             ServerMessage::Whisper(msg) => {

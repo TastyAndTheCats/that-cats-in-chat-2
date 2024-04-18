@@ -1,8 +1,15 @@
-use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use twitch_irc::login::{TokenStorage, UserAccessToken};
 
-use database::login::{bot, user};
+use async_trait::async_trait;
+use twitch_irc::login::RefreshingLoginCredentials;
+use twitch_irc::transport::tcp::{TCPTransport, TLS};
+use twitch_irc::TwitchIRCClient;
+
+use database::login::bot;
+
+pub type TwitchClientType =
+    TwitchIRCClient<TCPTransport<TLS>, RefreshingLoginCredentials<RefreshingTokenStorage>>;
 
 #[derive(Debug)]
 pub struct RefreshingTokenStorage {

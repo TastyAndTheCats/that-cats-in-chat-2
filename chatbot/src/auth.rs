@@ -7,7 +7,7 @@ use twitch_irc::message::ServerMessage;
 use twitch_irc::TwitchIRCClient;
 use twitch_irc::{ClientConfig, SecureTCPTransport};
 
-use crate::definitions::{structs::RefreshingTokenStorage, types::TwitchClientType};
+use crate::types::{RefreshingTokenStorage, TwitchClientType};
 use utils;
 
 /// Creates a refreshingLoginCredentials-based connection to Twitch

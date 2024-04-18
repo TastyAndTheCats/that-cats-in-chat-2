@@ -116,3 +116,32 @@ pub async fn validate_access_token(access_token: &str) -> Result<Response, Error
 //         client_credentials
 
 // }
+
+/// Checks if the login is valid
+
+pub async fn get_userid_and_login_from_validated_access_token(
+    access_token: &str,
+) -> [Option<String>; 2] {
+    let validation_json: serde_json::Value = serde_json::from_str(
+        &validate_access_token(&access_token)
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap(),
+    )
+    .unwrap();
+    if validation_json["status"] == 401 {
+        invalidate_login();
+        return [None, None];
+    }
+    return [
+        Some(validation_json["user_id"].as_str().unwrap().to_owned()),
+        Some(validation_json["login"].as_str().unwrap().to_owned()),
+    ];
+}
+
+/// TODO: Invalidate the login access_token
+fn invalidate_login() {
+    todo!();
+}
