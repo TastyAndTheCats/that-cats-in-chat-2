@@ -2,8 +2,8 @@
 
 use std::env;
 
+use crate::local_types::TwitchClient;
 use crate::responder;
-use crate::types::TwitchClientType;
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
 use utils::message::rest_of_chat_message;
@@ -12,7 +12,7 @@ mod automoderator;
 
 /// Dispatches all of the chatbot responses. This is the main brain of the chatbot's response engine.
 pub async fn dispatch(
-    client: &TwitchClientType,
+    client: &TwitchClient,
     msg: PrivmsgMessage,
     responders: &Vec<TwitchResponder>,
 ) {
@@ -20,8 +20,9 @@ pub async fn dispatch(
         for r in responders {
             if r.starts_with.is_some() {
                 let options = r.starts_with.as_ref().unwrap().split("|");
+                let m = msg.message_text.to_lowercase();
                 for opt in options {
-                    if msg.message_text.to_lowercase().starts_with(opt) {
+                    if m.starts_with(opt) {
                         send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
                 }
@@ -29,8 +30,9 @@ pub async fn dispatch(
 
             if r.contains.is_some() {
                 let options = r.contains.as_ref().unwrap().split("|");
+                let m = msg.message_text.to_lowercase();
                 for opt in options {
-                    if msg.message_text.to_lowercase().contains(opt) {
+                    if m.contains(opt) {
                         send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
                 }
@@ -38,8 +40,9 @@ pub async fn dispatch(
 
             if r.ends_with.is_some() {
                 let options = r.ends_with.as_ref().unwrap().split("|");
+                let m = msg.message_text.to_lowercase();
                 for opt in options {
-                    if msg.message_text.to_lowercase().ends_with(opt) {
+                    if m.ends_with(opt) {
                         send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
                 }
@@ -49,7 +52,7 @@ pub async fn dispatch(
 }
 
 async fn send_response_or_run_response_fn(
-    client: &TwitchClientType,
+    client: &TwitchClient,
     r: &TwitchResponder,
     msg: &PrivmsgMessage,
     command: &str,

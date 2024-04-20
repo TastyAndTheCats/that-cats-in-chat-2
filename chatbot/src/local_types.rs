@@ -1,14 +1,14 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
-use twitch_irc::login::{TokenStorage, UserAccessToken};
-
 use async_trait::async_trait;
-use twitch_irc::login::RefreshingLoginCredentials;
-use twitch_irc::transport::tcp::{TCPTransport, TLS};
-use twitch_irc::TwitchIRCClient;
+use chrono::{DateTime, NaiveDateTime, Utc};
+use twitch_irc::{
+    login::{RefreshingLoginCredentials, TokenStorage, UserAccessToken},
+    transport::tcp::{TCPTransport, TLS},
+    TwitchIRCClient,
+};
 
 use database::login::bot;
 
-pub type TwitchClientType =
+pub type TwitchClient =
     TwitchIRCClient<TCPTransport<TLS>, RefreshingLoginCredentials<RefreshingTokenStorage>>;
 
 #[derive(Debug)]
@@ -22,8 +22,8 @@ impl TokenStorage for RefreshingTokenStorage {
     type UpdateError = std::io::Error;
 
     async fn load_token(&mut self) -> Result<UserAccessToken, Self::LoadError> {
-        let chatbot_info = bot::bot_from_owner_id(&self.channel_id).await;
-        let login_info = bot::bot_access_token(&chatbot_info.state).await;
+        let chatbot_info = bot::bot_from_owner_id(&self.channel_id).await.unwrap();
+        let login_info = bot::bot_access_token(&chatbot_info.state).await.unwrap();
         let token = login_info.access_token.unwrap();
         let refresh_token = login_info.refresh_token.unwrap();
         let created_at = login_info.initiated_at.and_utc();
@@ -39,8 +39,8 @@ impl TokenStorage for RefreshingTokenStorage {
     }
 
     async fn update_token(&mut self, token: &UserAccessToken) -> Result<(), Self::UpdateError> {
-        let chatbot_info = bot::bot_from_owner_id(&self.channel_id).await;
-        let mut login_info = bot::bot_access_token(&chatbot_info.state).await;
+        let chatbot_info = bot::bot_from_owner_id(&self.channel_id).await.unwrap();
+        let mut login_info = bot::bot_access_token(&chatbot_info.state).await.unwrap();
 
         login_info.access_token = Some(token.access_token.to_owned());
         login_info.refresh_token = Some(token.refresh_token.to_owned());

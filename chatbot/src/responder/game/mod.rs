@@ -3,10 +3,10 @@ mod colony;
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
 
-use crate::types::TwitchClientType;
+use crate::local_types::TwitchClient;
 
 pub async fn dispatch(
-    client: &TwitchClientType,
+    client: &TwitchClient,
     responder: &TwitchResponder,
     msg: &PrivmsgMessage,
     command: &str,

@@ -9,16 +9,16 @@
 //! I also hope to revive the old method of spawning a chatbot instance from a website, allowing custom commands, etc. but that's a bit down the line.
 
 use dotenvy::dotenv;
-use std::env;
 use tokio;
 
 mod auth;
 mod handler;
+mod local_types;
 mod responder;
-mod types;
 
 use database::models::responders::TwitchResponder;
-use types::TwitchClientType;
+use local_types::TwitchClient;
+use types::get::channel;
 
 /// Run the chatbot stack and connect the authenticated chatbot to the TWITCH_CHANNEL provided in .env
 /// NOTE: if your authentication fails it might be a permissions issue not an auth issue
@@ -38,15 +38,14 @@ fn start_app() {
 /// Things needed for the bot to work
 async fn start_bot() -> tokio::task::JoinHandle<()> {
     let (client, incoming_messages) = auth::configure_chatbot().await;
-    let channel = env::var("TWITCH_CHANNEL")
-        .expect("Missing TWITCH_CHANNEL environment variable.")
-        .to_ascii_lowercase()
-        .to_owned();
+    let channel = channel(None, None);
 
-    client.join(channel).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
-                                   // I'm just working on getting the bot going for now, but we'll probably need to use this ability in order to scale efficiently.
+    client.join(channel.login).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
+                                         // I'm just working on getting the bot going for now, but we'll probably need to use this ability in order to scale efficiently.
 
-    let responders = bot_initialization(&client).await;
+    let responders = bot_initialization().await;
+
+    say_hello(&client, &responders).await;
 
     tokio::spawn(
         async move { handler::dispatch(&client.clone(), incoming_messages, &responders).await },
@@ -54,14 +53,20 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
 }
 
 /// Things that need to happen before the bot starts listening to the channel
-async fn bot_initialization(client: &TwitchClientType) -> Vec<TwitchResponder> {
+async fn bot_initialization() -> Vec<TwitchResponder> {
     // Load the available responders for this user
-    let channel_id = utils::parse_id(
-        env::var("TWITCH_CHANNEL_ID").expect("Missing TWITCH_CHANNEL_ID environment variable."),
-    );
+    let channel = channel(None, None);
 
-    let responders = database::bot::get_responders_list(channel_id).await;
-    for r in &responders {
+    let responders = database::bot::get_responders_for_user(channel.id)
+        .await
+        .unwrap_or(Vec::from([]));
+
+    responders
+}
+
+/// Hard-coded pre-init greeting
+async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
+    for r in responders {
         println!("{:?}", r);
         match r.title.as_str() {
             "Say Hello" => {
@@ -71,6 +76,4 @@ async fn bot_initialization(client: &TwitchClientType) -> Vec<TwitchResponder> {
             _ => {}
         }
     }
-
-    responders
 }
