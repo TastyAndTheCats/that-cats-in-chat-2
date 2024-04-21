@@ -8,11 +8,11 @@ use tokio::{self, sync::mpsc::UnboundedReceiver};
 use twitch_irc::message::ServerMessage;
 
 mod privmsgs;
-use crate::types::TwitchClientType;
+use crate::local_types::TwitchClient;
 
 /// Decides what sort of message is being received by the chatbot and what to do about it
 pub async fn dispatch(
-    client: &TwitchClientType,
+    client: &TwitchClient,
     mut incoming_messages: UnboundedReceiver<ServerMessage>,
     responders: &Vec<TwitchResponder>,
 ) {

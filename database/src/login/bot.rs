@@ -1,36 +1,34 @@
 //! Routes we use when logging in a bot
 
-use diesel::prelude::*;
+use diesel::{prelude::*, result};
 
 use crate::establish_connection;
 use crate::models::{LoginProcess, TwitchBot};
 use crate::schema::{twitch_bot, twitch_login_process};
 
 /// Takes the channel_id and returns the TwitchBot object associated with it
-pub async fn bot_from_owner_id(owner_id: &i32) -> TwitchBot {
+pub async fn bot_from_owner_id(owner_id: &i32) -> Result<TwitchBot, result::Error> {
     let connection = &mut establish_connection();
-    let bot = twitch_bot::table
+    twitch_bot::table
         .filter(twitch_bot::channel_id.eq(owner_id))
         .select(TwitchBot::as_select())
         .get_result(connection)
-        .unwrap();
-    bot
 }
 
 /// Takes the login state and returns the associated LoginProcess
-pub async fn bot_access_token(state: &str) -> LoginProcess {
+pub async fn bot_access_token(state: &str) -> Result<LoginProcess, result::Error> {
     let connection = &mut establish_connection();
-    let login_info = twitch_login_process::table
+    twitch_login_process::table
         .filter(twitch_login_process::state.eq(state))
         .select(LoginProcess::as_select())
         .get_result(connection)
-        .unwrap();
-    // TODO?: Check token validity
-    login_info
 }
 
 /// Updates the LoginProcess for a given Login state
-pub async fn update_bot_access_token(state: &str, new_login_process: LoginProcess) -> LoginProcess {
+pub async fn update_bot_access_token(
+    state: &str,
+    new_login_process: LoginProcess,
+) -> Result<LoginProcess, result::Error> {
     let connection = &mut establish_connection();
     diesel::update(twitch_login_process::table.find(state))
         .set((
@@ -41,11 +39,15 @@ pub async fn update_bot_access_token(state: &str, new_login_process: LoginProces
         ))
         .returning(LoginProcess::as_returning())
         .get_result(connection)
-        .unwrap()
 }
 
 /// After validation, twitch hands back the user id and login, thesse are useful, so we save them
-pub fn save_initial_bot_details(state: &str, id: &i32, login: &str, bot_owner: &i32) {
+pub fn save_initial_bot_details(
+    state: &str,
+    id: &i32,
+    login: &str,
+    bot_owner: &i32,
+) -> Result<usize, result::Error> {
     let connection = &mut establish_connection();
 
     // Delete any old logins/attempts for this channel (one bot per channel)
@@ -63,11 +65,10 @@ pub fn save_initial_bot_details(state: &str, id: &i32, login: &str, bot_owner: &
         ))
         // There shouldn't be any collisions given the above deletion
         .execute(connection)
-        .expect("Failed to save access token");
 }
 
 // Set the channel_id for the owner's channel to associate the two during the bot login process
-pub fn add_bot_owner(state: &str, owner_id: &i32) {
+pub fn add_bot_owner(state: &str, owner_id: &i32) -> Result<usize, result::Error> {
     let connection = &mut establish_connection();
     diesel::insert_into(twitch_bot::table)
         .values((
@@ -78,5 +79,4 @@ pub fn add_bot_owner(state: &str, owner_id: &i32) {
         // .do_update()
         // .set(twitch_bot::state.eq(state))
         .execute(connection)
-        .expect("Failed to save bot access token");
 }

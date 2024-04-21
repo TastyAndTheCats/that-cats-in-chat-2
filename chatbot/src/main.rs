@@ -7,26 +7,26 @@
 //! I will do my best to eliminate any need for an end user to change any code, and once that's done I'll start making executable releases, maybe?
 //!
 //! I also hope to revive the old method of spawning a chatbot instance from a website, allowing custom commands, etc. but that's a bit down the line.
+#![warn(missing_debug_implementations)]
 
 use dotenvy::dotenv;
-use std::env;
 use tokio;
 
 mod auth;
 mod handler;
+mod local_types;
 mod responder;
-mod types;
 
 use database::models::responders::TwitchResponder;
-use types::TwitchClientType;
+use local_types::TwitchClient;
+use types::get::channel;
 
 /// Run the chatbot stack and connect the authenticated chatbot to the TWITCH_CHANNEL provided in .env
 /// NOTE: if your authentication fails it might be a permissions issue not an auth issue
 #[tokio::main]
 pub async fn main() {
     start_app();
-    let bot = start_bot().await;
-    bot.await.unwrap();
+    start_bot().await.await.expect("Chatbot has died!");
 }
 
 /// Things needed for the app to work
@@ -37,16 +37,12 @@ fn start_app() {
 
 /// Things needed for the bot to work
 async fn start_bot() -> tokio::task::JoinHandle<()> {
-    let (client, incoming_messages) = auth::configure_chatbot().await;
-    let channel = env::var("TWITCH_CHANNEL")
-        .expect("Missing TWITCH_CHANNEL environment variable.")
-        .to_ascii_lowercase()
-        .to_owned();
+    let (incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
+    let responders = bot_initialization().await;
 
-    client.join(channel).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
-                                   // I'm just working on getting the bot going for now, but we'll probably need to use this ability in order to scale efficiently.
-
-    let responders = bot_initialization(&client).await;
+    client.join(channel(None, None).login).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
+    list_responders_in_console(&responders);
+    say_hello(&client, &responders).await;
 
     tokio::spawn(
         async move { handler::dispatch(&client.clone(), incoming_messages, &responders).await },
@@ -54,23 +50,33 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
 }
 
 /// Things that need to happen before the bot starts listening to the channel
-async fn bot_initialization(client: &TwitchClientType) -> Vec<TwitchResponder> {
+async fn bot_initialization() -> Vec<TwitchResponder> {
     // Load the available responders for this user
-    let channel_id = utils::parse_id(
-        env::var("TWITCH_CHANNEL_ID").expect("Missing TWITCH_CHANNEL_ID environment variable."),
-    );
+    database::bot::get_combined_responders_for_user(channel(None, None).id).unwrap_or(Vec::from([]))
+}
 
-    let responders = database::bot::get_responders_list(channel_id).await;
-    for r in &responders {
-        println!("{:?}", r);
+/// Hard-coded pre-init greeting
+async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
+    for r in responders {
         match r.title.as_str() {
             "Say Hello" => {
-                responder::send(client, r.response.as_ref().unwrap().to_string()).await;
+                responder::send(
+                    client,
+                    None,
+                    r.response.as_ref().unwrap().to_string(),
+                    Some(r),
+                )
+                .await;
                 // You cheeky little...
             }
             _ => {}
         }
     }
+}
 
-    responders
+/// TODO: remove this, it's nice to be able to see what's loaded though
+fn list_responders_in_console(responders: &Vec<TwitchResponder>) {
+    for r in responders {
+        println!("{}", r);
+    }
 }

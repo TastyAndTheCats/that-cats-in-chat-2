@@ -53,7 +53,12 @@ pub fn check(msg: &str) -> bool {
         "wanna be͎comeͣ famous͗?",
         "Waͮnn̽a",
         "yourfollowz .com",
-        "yourfollowz"
+        "yourfollowz",
+        "Best Viewers",
+        "Viewers and Followers",
+        "StreamBoo",
+        "cutt.ly/hw5jEWsx",
+        "hw5jEWsx",
     ]; // TODO: put this list somewhere as text/CSV?
        // TODO: update this list, these are _OLD_ scams
     for phrase in offensive_phrases {
