@@ -5,6 +5,8 @@ use actix_web::{
     web::{redirect, Path, Query},
     HttpResponse, Responder,
 };
+use tracing;
+
 use api_consumers::twitch::auth;
 use database::login;
 
@@ -36,14 +38,25 @@ async fn twitch_bot_login_accepted(query: Query<TwitchLoginSuccessResponse>) -> 
     let [bot_id, bot_login] = validate_twitch_login(&query).await;
 
     let bot_id = utils::parse_id(bot_id.expect("Login was invalid"));
-    let bot_owner_id = database::channel::bot_owner_from_state(&query.state).await;
+    let bot_owner = database::channel::bot_owner_from_state(&query.state)
+        .await
+        .expect("State was invalid, probably a db error");
     let bot_login = bot_login.expect("Login was invalid");
 
-    login::bot::save_initial_bot_details(&query.state, &bot_id, &bot_login, &bot_owner_id).unwrap();
+    let results = login::bot::save_initial_bot_details(
+        &query.state,
+        &bot_id,
+        &bot_login,
+        &bot_owner.channel_id,
+    )
+    .expect("Initial bot details couldn't be saved");
+    if results > 1 {
+        tracing::warn!("login::bot::save_initial_bot_details altered more than one row");
+    }
 
     HttpResponse::Ok().body(format!(
         "You have succesfully registered {} as a chatbot powered by TheCatsInChat (in channel #{})!\n You can close this tab/window.",
-        bot_login, bot_owner_id
+        bot_login, bot_owner.channel_id
     ))
 }
 

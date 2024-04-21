@@ -1,13 +1,14 @@
 //! Contains all of the messages sent by the bot
-use twitch_irc::message::PrivmsgMessage;
+use twitch_irc::message::{PrivmsgMessage, TwitchUserBasics};
 
 use database::models::responders::TwitchResponder;
-use types::get::channel;
+use types::get::{channel, chatbot};
 
-use crate::local_types::TwitchClient;
+use crate::local_types::{faked_privmsgmessage, TwitchClient};
 
 mod core;
 mod game;
+pub mod permissions;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
 async fn send_message_to(client: &TwitchClient, channel_name: String, message: String) {
@@ -18,19 +19,29 @@ async fn send_message_to(client: &TwitchClient, channel_name: String, message: S
 }
 
 /// Send a message to the TWITCH_CHANNEL
-pub async fn send(client: &TwitchClient, message: String) {
-    let channel_login = channel(None, None).login;
-    send_message_to(client, channel_login, message).await;
+pub async fn send(
+    client: &TwitchClient,
+    msg: Option<&PrivmsgMessage>,
+    message: String,
+    responder: Option<&TwitchResponder>,
+) {
+    let channel = channel(None, None);
+    let privmsg = faked_privmsgmessage(&message);
+    let msg = msg.unwrap_or(&privmsg);
+
+    let auth_level = permissions::check(msg);
+    println!("{:?} - {:?}", auth_level, responder);
+
+    send_message_to(client, channel.login, message).await;
 }
 
 /// Run a function to generate a message to send to the TWITCH_CHANNEL
-pub async fn run(
+pub async fn function_message(
     client: &TwitchClient,
     responder: &TwitchResponder,
     msg: &PrivmsgMessage,
     command: &str,
-) {
-    let channel_login = msg.channel_login.to_string();
+) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
 
     let message = match response_fn.as_str() {
@@ -39,11 +50,11 @@ pub async fn run(
             if response_fn.starts_with("core") {
                 core::dispatch(client, responder, msg, command).await
             } else if response_fn.starts_with("game") {
-                game::dispatch(client, responder, msg, command).await
+                game::dispatch(responder, command).await
             } else {
                 format!("Unknown response Function: {}", response_fn)
             }
         }
     };
-    send_message_to(client, channel_login, message).await;
+    message
 }

@@ -61,12 +61,12 @@ async fn cmd_shoutout(client: &TwitchClient, msg: &PrivmsgMessage, command: &str
 }
 
 async fn do_builtin_twitch_shoutout(client: &TwitchClient, msg: &PrivmsgMessage, command: &str) {
-    // NOTE: Doesn't seem to work
-    client
-        .privmsg(
-            msg.channel_login.to_owned(),
-            format!("/shoutout {}", command),
-        )
-        .await
-        .unwrap();
+    // NOTE: Doesn't seem to work - because this is deprecated and we have to use the API now
+    // client
+    //     .privmsg(
+    //         msg.channel_login.to_owned(),
+    //         format!("/shoutout {}", command),
+    //     )
+    //     .await
+    //     .unwrap();
 }

@@ -10,7 +10,8 @@ mod user;
 
 /// Shared portion of handling the user and bot logins
 async fn validate_twitch_login(query: &Query<TwitchLoginSuccessResponse>) -> [Option<String>; 2] {
-    login::user::twitch_login_successful(&query.state, &query.scope, &query.code);
+    login::user::twitch_login_successful(&query.state, &query.scope, &query.code)
+        .expect("Unable to validate twitch login");
     auth::get_userid_and_login_from_validated_access_token(
         &get_access_token_from_twitch(&query).await,
     )
@@ -38,7 +39,8 @@ async fn get_access_token_from_twitch(query: &Query<TwitchLoginSuccessResponse>)
         &handshake_json["expires_in"].to_string(),
         &access_token,
         &handshake_json["token_type"].as_str().unwrap(),
-    );
+    )
+    .expect("Unable to save new login information");
 
     access_token.to_owned()
 }

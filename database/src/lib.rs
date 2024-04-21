@@ -12,7 +12,6 @@
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use dotenvy::dotenv;
 
 use types::get::database;
 
@@ -26,7 +25,6 @@ mod schema;
 /// Creates a new connection to the database
 // TODO: I *think* these connections will drop when the function using them is over, but I should test that
 fn establish_connection() -> PgConnection {
-    dotenv().ok();
-    let db = database();
+    let db = database(None);
     PgConnection::establish(&db.url).unwrap_or_else(|_| panic!("Error connecting to {}", db.url))
 }
