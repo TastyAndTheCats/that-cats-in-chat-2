@@ -6,6 +6,7 @@ use types::get::channel;
 
 use crate::local_types::{faked_privmsgmessage, TwitchClient};
 
+pub mod cooldown;
 mod core;
 mod game;
 pub mod permissions;
@@ -30,8 +31,18 @@ pub async fn send(
     let msg = msg.unwrap_or(&privmsg);
     let responder = responder.unwrap();
 
+    println!("{:?}", responder);
+
     if permissions::check(msg, responder) {
-        send_message_to(client, channel.login, message).await;
+        if cooldown::check(responder) {
+            database::responder::update_last_instance(channel.id, responder.id).expect(&format!(
+                "channel.id {} or responder.id {} are wrong",
+                channel.id, responder.id
+            ));
+            send_message_to(client, channel.login, message).await;
+        } else {
+            tracing::info!("Too soon to call {}", responder.title);
+        }
     } else {
         tracing::info!(
             "Insufficient permissions on call to {} from {}",

@@ -10,7 +10,7 @@ use crate::schema;
 #[derive(Debug, Queryable)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchResponder {
-    pub responder_id: i32,
+    pub id: i32,
     pub responder_profile: i32,
     pub last_instance: i32,
     pub permissions: i32,
@@ -36,7 +36,7 @@ pub struct TwitchResponder {
 impl Default for TwitchResponder {
     fn default() -> TwitchResponder {
         TwitchResponder {
-            responder_id: 0,
+            id: 0,
             responder_profile: 0,
             last_instance: 0,
             permissions: 0,
