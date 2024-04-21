@@ -656,6 +656,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "diesel",
+ "tracing",
  "types",
 ]
 

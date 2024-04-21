@@ -4,10 +4,7 @@ use twitch_irc::message::PrivmsgMessage;
 use database::models::responders::TwitchResponder;
 use types::get::channel;
 
-use crate::{
-    local_types::{faked_privmsgmessage, TwitchClient},
-    responder::permissions::Permissions,
-};
+use crate::local_types::{faked_privmsgmessage, TwitchClient};
 
 mod core;
 mod game;
@@ -31,28 +28,9 @@ pub async fn send(
     let channel = channel(None, None);
     let privmsg = faked_privmsgmessage(&message);
     let msg = msg.unwrap_or(&privmsg);
-
-    let auth_level = permissions::check(msg);
     let responder = responder.unwrap();
-    println!("{:?} - {:?}", auth_level, responder);
 
-    if auth_level == Permissions::ALL // All
-        // Broadcaster-only
-        || responder.requires_broadcaster && auth_level == Permissions::BROADCASTER
-        // Moderator+
-        || (responder.requires_moderator
-            && (auth_level == Permissions::BROADCASTER || auth_level == Permissions::MODERATOR))
-        // VIP+
-        || (responder.requires_vip
-            && (auth_level == Permissions::BROADCASTER
-                || auth_level == Permissions::MODERATOR
-                || auth_level == Permissions::VIP))
-        // Subscriber+
-        || (responder.requires_subscriber
-            && (auth_level == Permissions::BROADCASTER
-                || auth_level == Permissions::MODERATOR
-                || auth_level == Permissions::SUBSCRIBER))
-    {
+    if permissions::check(msg, responder) {
         send_message_to(client, channel.login, message).await;
     } else {
         tracing::info!(

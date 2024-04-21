@@ -26,12 +26,10 @@ pub fn initiate_login(
         access_token: None,
         token_type: None,
     };
-
-    let connection = &mut establish_connection();
     diesel::insert_into(twitch_login_process::table)
         .values(&login)
         .returning(LoginProcess::as_returning())
-        .get_result(connection)
+        .get_result(&mut establish_connection())
 }
 
 /// The User has authorized the app
@@ -40,14 +38,13 @@ pub fn twitch_login_successful(
     scope: &str,
     code: &str,
 ) -> Result<LoginProcess, result::Error> {
-    let connection = &mut establish_connection();
     diesel::update(twitch_login_process::table.find(state))
         .set((
             twitch_login_process::code.eq(code),
             twitch_login_process::scope.eq(scope),
         ))
         .returning(LoginProcess::as_returning())
-        .get_result(connection)
+        .get_result(&mut establish_connection())
 }
 
 /// The User has not authorized the app
@@ -56,15 +53,14 @@ pub fn twitch_login_failed(
     error: &str,
     error_description: &str,
 ) -> Result<LoginProcess, result::Error> {
-    let connection = &mut establish_connection();
-    println!("{} - {}", error, error_description); // TODO: logging?
+    tracing::error!("{} - {}", error, error_description);
     diesel::update(twitch_login_process::table.find(state))
         .set((
             twitch_login_process::is_broadcaster.eq(false),
             twitch_login_process::is_bot.eq(false),
         ))
         .returning(LoginProcess::as_returning())
-        .get_result(connection)
+        .get_result(&mut establish_connection())
 }
 
 /// After login with the Twitch secret handshake, save the connection details to the twitch_login_process table
@@ -76,7 +72,6 @@ pub fn save_new_access_token(
     token_type: &str,
 ) -> Result<LoginProcess, result::Error> {
     let now_plus_expiry = Utc::now().timestamp() + token_expiry.parse::<i64>().unwrap();
-    let connection = &mut establish_connection();
     diesel::update(twitch_login_process::table.find(state))
         .set((
             twitch_login_process::refresh_token.eq(refresh_token),
@@ -85,7 +80,7 @@ pub fn save_new_access_token(
             twitch_login_process::token_type.eq(token_type),
         ))
         .returning(LoginProcess::as_returning())
-        .get_result(connection)
+        .get_result(&mut establish_connection())
 }
 
 /// After validation, twitch hands back the user id and login, thesse are useful, so we save them
@@ -94,7 +89,6 @@ pub fn save_initial_user_details(
     id: &i32,
     login: &str,
 ) -> Result<usize, result::Error> {
-    let connection = &mut establish_connection();
     // This is the example upsert, for anyone searching that term in my codebase (aka me)
     diesel::insert_into(twitch_user::table)
         .values((
@@ -107,5 +101,5 @@ pub fn save_initial_user_details(
         .do_update()
         .set(twitch_user::login_state.eq(state))
         // --- end conflict handling
-        .execute(connection)
+        .execute(&mut establish_connection())
 }

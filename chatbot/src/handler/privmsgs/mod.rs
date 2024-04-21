@@ -8,7 +8,6 @@ use types::get;
 use utils::message::rest_of_chat_message;
 
 mod automoderator;
-use crate::responder::permissions::{self, Permissions};
 
 /// Dispatches all of the chatbot responses. This is the main brain of the chatbot's response engine.
 pub async fn dispatch(
@@ -23,18 +22,7 @@ pub async fn dispatch(
                 let m = msg.message_text.to_lowercase();
                 for opt in options {
                     if m.starts_with(opt) {
-                        let permission = permissions::check(&msg);
-                        match permission {
-                            Permissions::ALL => {
-                                send_response_or_run_response_fn(client, &r, &msg, opt).await;
-                            }
-                            _ => {
-                                println!(
-                                    "I haven't got permissions setup for that: {:?}",
-                                    permission
-                                )
-                            }
-                        }
+                        send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
                 }
             }
