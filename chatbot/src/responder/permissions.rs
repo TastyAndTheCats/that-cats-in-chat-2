@@ -1,27 +1,15 @@
-use std::fmt;
-
 use twitch_irc::message::PrivmsgMessage;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Permissions {
     BROADCASTER = 1,
     MODERATOR = 2,
     VIP = 3,
     SUBSCRIBER = 4,
-    FOLLOWER = 5,
+    // FOLLOWER = 5,
     ALL = 6,
-    TURBO = 7,
+    // TURBO = 7,
 }
-
-// impl fmt::Display for Permissions {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(
-//             f,
-//             "Permissions {}",
-//             self.to_string()
-//         )
-//     }
-// }
 
 pub fn check(msg: &PrivmsgMessage) -> Permissions {
     let tags = &msg.source.tags.0;
