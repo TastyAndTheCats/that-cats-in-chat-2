@@ -37,7 +37,6 @@ pub async fn send(
 
 /// Run a function to generate a message to send to the TWITCH_CHANNEL
 pub async fn function_message(
-    client: &TwitchClient,
     responder: &TwitchResponder,
     msg: &PrivmsgMessage,
     command: &str,
@@ -48,7 +47,7 @@ pub async fn function_message(
         "" | "default" | "text" => responder.response.as_ref().unwrap().to_owned(),
         _ => {
             if response_fn.starts_with("core") {
-                core::dispatch(client, responder, msg, command).await
+                core::dispatch(responder, msg, command).await
             } else if response_fn.starts_with("game") {
                 game::dispatch(responder, command).await
             } else {

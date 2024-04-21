@@ -1,7 +1,5 @@
 //! Handles responses to normal chat messages
 
-use std::env;
-
 use crate::local_types::TwitchClient;
 use crate::responder;
 use database::models::responders::TwitchResponder;
@@ -75,7 +73,7 @@ async fn send_response_or_run_response_fn(
         Some(msg),
         match r.response_fn.is_some() {
             true => insert_data_in_response(
-                responder::function_message(client, r, msg, command).await,
+                responder::function_message(r, msg, command).await,
                 msg,
                 command,
             ),

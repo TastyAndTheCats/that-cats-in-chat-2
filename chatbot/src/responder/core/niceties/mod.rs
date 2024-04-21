@@ -4,23 +4,16 @@ use api_consumers::twitch::{channel::lookup_channel_from_id, users::lookup_user_
 use database::models::responders::TwitchResponder;
 use utils::message::single_word_after_command;
 
-use crate::local_types::TwitchClient;
-
-pub async fn dispatch(
-    client: &TwitchClient,
-    responder: &TwitchResponder,
-    msg: &PrivmsgMessage,
-    command: &str,
-) -> String {
+pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command: &str) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
     if response_fn.starts_with("core::niceties::shoutout") {
-        return cmd_shoutout(client, msg, command).await;
+        return cmd_shoutout(msg, command).await;
     } else {
         return "Unknown Function (niceties)".to_owned();
     }
 }
 
-async fn cmd_shoutout(client: &TwitchClient, msg: &PrivmsgMessage, command: &str) -> String {
+async fn cmd_shoutout(msg: &PrivmsgMessage, command: &str) -> String {
     let user_json: serde_json::Value = serde_json::from_str(
         &lookup_user_from_login(&single_word_after_command(msg, command))
             .await
@@ -53,20 +46,9 @@ async fn cmd_shoutout(client: &TwitchClient, msg: &PrivmsgMessage, command: &str
         game_message = format!("{} was last seen streaming {}!", so_name, game_name);
     }
 
-    do_builtin_twitch_shoutout(client, msg, so_name).await;
+    //TODO this needs to be an api call - do actual Twitch /shoutout via API
     format!(
         "Go check out {} at twitch.tv/{} and make a new friend?! {} ⟹⟹⟹ {}",
         so_name, so_name, game_message, so_description,
     )
-}
-
-async fn do_builtin_twitch_shoutout(client: &TwitchClient, msg: &PrivmsgMessage, command: &str) {
-    // NOTE: Doesn't seem to work - because this is deprecated and we have to use the API now
-    // client
-    //     .privmsg(
-    //         msg.channel_login.to_owned(),
-    //         format!("/shoutout {}", command),
-    //     )
-    //     .await
-    //     .unwrap();
 }
