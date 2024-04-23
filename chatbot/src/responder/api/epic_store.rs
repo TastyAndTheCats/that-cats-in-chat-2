@@ -7,7 +7,7 @@ use utils::serde_json::unwrap_reqwest;
 pub async fn dispatch(
     responder: &TwitchResponder,
     _msg: &PrivmsgMessage,
-    _command: &str
+    _command: &str,
 ) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
     if response_fn.starts_with("api::epic_store::free_games") {

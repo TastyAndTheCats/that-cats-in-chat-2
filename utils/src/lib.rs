@@ -2,6 +2,7 @@
 //! Most of these modules are representative of a specific third-party crate (rand, url, etc.)
 //! Functions in the lib file are data conversions
 
+pub mod file;
 pub mod message;
 pub mod num;
 pub mod rand;
