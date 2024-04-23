@@ -104,6 +104,7 @@ diesel::table! {
         per_user_cooldown -> Int4,
         include_specific_users -> Nullable<Text>,
         exclude_specific_users -> Nullable<Text>,
+        count -> Int4,
     }
 }
 

@@ -51,9 +51,9 @@ impl Default for TwitchResponder {
             requires_vip: false,
             title: "".to_owned(),
             starts_with: None,
-            contains: Some("falskdufbnsdlfasdikfnyjmasdlifas".to_owned()),
+            contains: None,
             ends_with: None,
-            response: Some("".to_string()),
+            response: None,
             response_fn: None,
         }
     }

@@ -39,8 +39,10 @@ fn start_app() {
 async fn start_bot() -> tokio::task::JoinHandle<()> {
     let (incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
     let responders = bot_initialization().await;
+    let channel = channel(None, None);
+    client.join(channel.login.to_string()).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
+    tracing::info!("{:?}", client.get_channel_status(channel.login).await);
 
-    client.join(channel(None, None).login).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
     list_responders_in_console(&responders);
     say_hello(&client, &responders).await;
 

@@ -13,11 +13,7 @@ INSERT INTO
     twitch_bot_responder_groups (id, title, parent)
 VALUES
     (1, 'Core Functions', NULL),
-    (2, 'Game-Related', NULL),
-    (3, 'Third-Party', NULL),
-    (4, 'API Consumers', 3),
-    (5, 'User-Defined', 3),
-    (6, 'Epic Games Store', 4),
+    
     (7, 'Facts', 1),
     (8, 'Information', 1),
     (9, 'Twitch', 4),
@@ -27,12 +23,16 @@ VALUES
     (13, 'Niceties', 1),
 
     (14, 'Emoji', 1),
+
+    (2, 'Game-Related', NULL),
+    (29, 'Colony-Builders', 2),
+
+    (3, 'Third-Party', NULL),
+    (5, 'User-Defined', 3),
+    (4, 'API Consumers', 3),
+    (6, 'Epic Games Store', 4),
     
     (15, 'Food', 14),
-    (16, 'Personal', 14),
-    (17, 'Shapes', 14),
-    (18, 'Events', 14),
-    
     (19, 'Baked Goods', 15),
     (20, 'Dairy', 15),
     (21, 'Desserts', 15),
@@ -43,7 +43,10 @@ VALUES
     (26, 'Meats', 15),
     (27, 'Utensils', 15),
     (28, 'Vegetables', 15),
-    (29, 'Colony-Builders', 2);
+
+    (16, 'Personal', 14),
+    (17, 'Shapes', 14),
+    (18, 'Events', 14);
 
 -- Definitions of responders
 CREATE TABLE
@@ -143,7 +146,7 @@ VALUES
 INSERT INTO
     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
 VALUES
-    (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
+    -- (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
     (6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?|epic', 'api::epic_store::free_games'),
     (7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
     (7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
@@ -167,11 +170,11 @@ VALUES
     (12, 'Coin Flip', NULL, '!coinflip|!flipcoin|!cointoss|!tosscoin', NULL, 'core::maths::coin_toss'),
     (13, 'Shoutout', NULL, '!gowatch|!gofollow|!so', NULL, 'core::niceties::shoutout');
 
--- response and response_fn
-INSERT INTO
-    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
-VALUES
-    (1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
+-- -- response and response_fn
+-- INSERT INTO
+--     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
+-- VALUES
+--     (1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
 
 -- just response_fn and only starts_with
 INSERT INTO
@@ -316,9 +319,9 @@ CREATE TABLE
         responder_profile INTEGER REFERENCES twitch_bot_auto_response_profiles (id) NOT NULL DEFAULT 1,
         active BOOLEAN NOT NULL DEFAULT TRUE,
         last_instance INTEGER NOT NULL DEFAULT 0, -- UTC timestamp
-        permissions INTEGER REFERENCES twitch_bot_responder_permissions (id) NOT NULL DEFAULT 2,
-        cooldown INTEGER NOT NULL DEFAULT 0,
-        per_user_cooldown INTEGER NOT NULL DEFAULT 10,
+        permissions INTEGER REFERENCES twitch_bot_responder_permissions (id) NOT NULL DEFAULT 3,
+        cooldown INTEGER NOT NULL DEFAULT 10,
+        per_user_cooldown INTEGER NOT NULL DEFAULT 60,
         include_specific_users TEXT DEFAULT NULL,
         exclude_specific_users TEXT DEFAULT NULL,
         CONSTRAINT include_or_exclude_not_both CHECK (
@@ -331,11 +334,11 @@ CREATE TABLE
                 exclude_specific_users IS NULL
             )
         ),
+        count INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (user_id, responder_id)
     );
 
 -- Adds all of the possible responses to TastyAndTheCats' bot
--- NOTE: you have to set the 1..X here manually it's not a count
 DO $$
 DECLARE
     row_count INTEGER;

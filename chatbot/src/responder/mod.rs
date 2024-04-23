@@ -34,7 +34,7 @@ pub async fn send(
     println!("{:?}", responder);
 
     if permissions::check(msg, responder) {
-        if cooldown::check(responder) {
+        if msg.sender.id == msg.channel_id || cooldown::check(responder) {
             database::responder::update_last_instance(channel.id, responder.id).expect(&format!(
                 "channel.id {} or responder.id {} are wrong",
                 channel.id, responder.id
@@ -66,7 +66,7 @@ pub async fn function_message(
             if response_fn.starts_with("core") {
                 core::dispatch(responder, msg, command).await
             } else if response_fn.starts_with("game") {
-                game::dispatch(responder, command).await
+                game::dispatch(responder, msg, command).await
             } else {
                 format!("Unknown response Function: {}", response_fn)
             }

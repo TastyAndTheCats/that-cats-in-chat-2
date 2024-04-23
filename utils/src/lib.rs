@@ -3,6 +3,7 @@
 //! Functions in the lib file are data conversions
 
 pub mod message;
+pub mod num;
 pub mod rand;
 pub mod twitch;
 pub mod url;
