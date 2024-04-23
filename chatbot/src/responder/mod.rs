@@ -7,9 +7,11 @@ use types::get::channel;
 use crate::local_types::{faked_privmsgmessage, TwitchClient};
 
 pub mod cooldown;
+pub mod permissions;
+
+mod api;
 mod core;
 mod game;
-pub mod permissions;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
 async fn send_message_to(client: &TwitchClient, channel_name: String, message: String) {
@@ -65,6 +67,8 @@ pub async fn function_message(
         _ => {
             if response_fn.starts_with("core") {
                 core::dispatch(responder, msg, command).await
+            } else if response_fn.starts_with("api") {
+                api::dispatch(responder, msg, command).await
             } else if response_fn.starts_with("game") {
                 game::dispatch(responder, msg, command).await
             } else {

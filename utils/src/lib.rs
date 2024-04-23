@@ -5,6 +5,7 @@
 pub mod message;
 pub mod num;
 pub mod rand;
+pub mod serde_json;
 pub mod twitch;
 pub mod url;
 

@@ -2,6 +2,7 @@
 
 use reqwest::{Client, Error, Response};
 use types::get;
+use utils::serde_json::unwrap_reqwest;
 
 /// Generates a random string for nonce purposes
 pub fn state() -> String {
@@ -58,15 +59,7 @@ pub async fn validate_access_token(access_token: &str) -> Result<Response, Error
 pub async fn get_userid_and_login_from_validated_access_token(
     access_token: &str,
 ) -> [Option<String>; 2] {
-    let validation_json: serde_json::Value = serde_json::from_str(
-        &validate_access_token(&access_token)
-            .await
-            .unwrap()
-            .text()
-            .await
-            .unwrap(),
-    )
-    .unwrap();
+    let validation_json = unwrap_reqwest(validate_access_token(&access_token).await).await;
     if validation_json["status"] == 401 {
         invalidate_login();
         return [None, None];
