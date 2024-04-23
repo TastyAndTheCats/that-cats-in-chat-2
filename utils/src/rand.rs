@@ -11,13 +11,14 @@ pub fn generate_password(length: usize) -> String {
         .collect()
 }
 
+// random range from 0..
 pub fn random_number_0_to(num: i32) -> i32 {
     rand::thread_rng().gen_range(0..num)
 }
 
 pub fn random_number_1_to(num: i32) -> i32 {
     if num > 1 {
-        rand::thread_rng().gen_range(1..num)
+        rand::thread_rng().gen_range(1..num + 1)
     } else {
         num
     }

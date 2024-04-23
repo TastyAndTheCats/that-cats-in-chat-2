@@ -1,6 +1,8 @@
 use twitch_irc::message::PrivmsgMessage;
 
-use api_consumers::twitch::{channel::lookup_channel_from_id, users::lookup_user_from_login};
+use api_consumers::twitch::{
+    channel::lookup_channel_from_id, former_slash_actions::shoutout, users::lookup_user_from_login,
+};
 use database::models::responders::TwitchResponder;
 use utils::message::single_word_after_command;
 
@@ -17,6 +19,7 @@ async fn cmd_shoutout(msg: &PrivmsgMessage, command: &str) -> String {
     let user_json: serde_json::Value = serde_json::from_str(
         &lookup_user_from_login(&single_word_after_command(msg, command))
             .await
+            .unwrap()
             .text()
             .await
             .unwrap(),
@@ -46,9 +49,17 @@ async fn cmd_shoutout(msg: &PrivmsgMessage, command: &str) -> String {
         game_message = format!("{} was last seen streaming {}!", so_name, game_name);
     }
 
-    //TODO this needs to be an api call - do actual Twitch /shoutout via API
-    format!(
-        "Go check out {} at twitch.tv/{} and make a new friend?! {} ⟹⟹⟹ {}",
-        so_name, so_name, game_message, so_description,
-    )
+    match shoutout(&msg.channel_id, so_name).await {
+        Ok(resp) => {
+            println!("resp status: {}", resp.status());
+            println!("resp: {:?}", resp);
+            format!("{} ⟹⟹⟹ {}", game_message, so_description,)
+        }
+        Err(_) => {
+            format!(
+                "Go check out {} at twitch.tv/{} and make a new friend?! {} ⟹⟹⟹ {}",
+                so_name, so_name, game_message, so_description,
+            )
+        }
+    }
 }

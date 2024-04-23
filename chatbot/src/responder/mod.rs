@@ -31,7 +31,7 @@ pub async fn send(
     let msg = msg.unwrap_or(&privmsg);
     let responder = responder.unwrap();
 
-    println!("{:?}", responder);
+    println!("Responder: {:?}", responder);
 
     if permissions::check(msg, responder) {
         if msg.sender.id == msg.channel_id || cooldown::check(responder) {

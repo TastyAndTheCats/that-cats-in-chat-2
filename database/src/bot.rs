@@ -1,5 +1,5 @@
 use diesel::{prelude::*, result};
-use types::get::chatbot;
+use types::get::channel;
 
 use crate::{
     establish_connection,
@@ -22,7 +22,7 @@ use crate::{
 pub fn get_access_token(id: Option<i32>) -> Result<LoginProcess, result::Error> {
     twitch_user::table
         .inner_join(twitch_login_process::table)
-        .filter(twitch_user::id.eq(id.unwrap_or(chatbot(None, None).id)))
+        .filter(twitch_user::id.eq(id.unwrap_or(channel(None, None).id)))
         .select(LoginProcess::as_select())
         .get_result(&mut establish_connection())
 }

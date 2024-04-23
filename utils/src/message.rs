@@ -26,7 +26,9 @@ pub fn single_word_after_command(msg: &PrivmsgMessage, command: &str) -> String 
 }
 
 // Returns the first word but as a number (or -1)
-pub fn first_word_after_command_as_number(msg: &PrivmsgMessage, command: &str) -> Result<i32, ParseIntError> {
-    single_word_after_command(msg, command)
-        .parse::<i32>()
+pub fn first_word_after_command_as_number(
+    msg: &PrivmsgMessage,
+    command: &str,
+) -> Result<i32, ParseIntError> {
+    single_word_after_command(msg, command).parse::<i32>()
 }

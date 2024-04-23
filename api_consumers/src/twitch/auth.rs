@@ -38,22 +38,20 @@ pub async fn complete_handshake(code: &str) -> Result<Response, Error> {
         ("redirect_uri", app.login_redirect_url),
     ];
 
-    let response = Client::new()
+    Client::new()
         .post("https://id.twitch.tv/oauth2/token")
         .body(utils::url::compose_post_body(params))
         .send()
-        .await?;
-    Ok(response)
+        .await
 }
 
 /// This validates the access_token AND gives you the user's login and id
 pub async fn validate_access_token(access_token: &str) -> Result<Response, Error> {
-    let response = Client::new()
+    Client::new()
         .get("https://id.twitch.tv/oauth2/validate")
         .header("Authorization", format!("OAuth {}", access_token))
         .send()
-        .await?;
-    Ok(response)
+        .await
 }
 
 /// Checks if the login is valid

@@ -79,6 +79,6 @@ async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
 /// TODO: remove this, it's nice to be able to see what's loaded though
 fn list_responders_in_console(responders: &Vec<TwitchResponder>) {
     for r in responders {
-        println!("{}", r);
+        println!("r: {}", r);
     }
 }
