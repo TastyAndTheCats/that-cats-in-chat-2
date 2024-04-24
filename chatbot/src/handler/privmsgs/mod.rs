@@ -18,11 +18,10 @@ pub async fn dispatch(
     responders: &Vec<TwitchResponder>,
 ) {
     if automoderator::check(&msg.message_text) {
+        let m = msg.message_text.to_lowercase();
         for r in responders {
             if r.starts_with.is_some() {
-                let options = r.starts_with.as_ref().unwrap().split("|");
-                let m = msg.message_text.to_lowercase();
-                for opt in options {
+                for opt in r.starts_with.as_ref().unwrap().split("|") {
                     if m.starts_with(opt) {
                         send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
@@ -30,9 +29,7 @@ pub async fn dispatch(
             }
 
             if r.contains.is_some() {
-                let options = r.contains.as_ref().unwrap().split("|");
-                let m = msg.message_text.to_lowercase();
-                for opt in options {
+                for opt in r.contains.as_ref().unwrap().split("|") {
                     if m.contains(opt) {
                         send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
@@ -40,9 +37,7 @@ pub async fn dispatch(
             }
 
             if r.ends_with.is_some() {
-                let options = r.ends_with.as_ref().unwrap().split("|");
-                let m = msg.message_text.to_lowercase();
-                for opt in options {
+                for opt in r.ends_with.as_ref().unwrap().split("|") {
                     if m.ends_with(opt) {
                         send_response_or_run_response_fn(client, &r, &msg, opt).await;
                     }
@@ -84,27 +79,33 @@ async fn format_response(r: &String, msg: &PrivmsgMessage, command: &str) -> Str
 
 /// Rwplaces text variables (no format yet) with the real data where possible
 async fn insert_data_in_response(response: String, msg: &PrivmsgMessage, command: &str) -> String {
-    let mut response = response;
+    let mut response = replace_sender_name(response, msg);
+    response = replace_channel_name(response, msg).await;
+    replace_1_(response, msg, command)
+}
 
-    // Replace Sender Name
-    response = response.replace("{sender}", &msg.sender.name);
+/// Replace {sender} with message sender display name
+fn replace_sender_name(response: String, msg: &PrivmsgMessage) -> String {
+    response.replace("{sender}", &msg.sender.name)
+}
 
-    // Replace channel_name
+/// Replace {channel_name} with channel display name
+async fn replace_channel_name(response: String, msg: &PrivmsgMessage) -> String {
     let user = unwrap_reqwest(lookup_user_from_login(&msg.channel_login).await).await;
     println!("{}", user);
-    response = response.replace(
+    response.replace(
         "{channel_name}",
         user["data"][0]["display_name"]
             .as_str()
             .unwrap_or(&env::var("TWITCH_CHANNEL").expect("TWITCH_CHANNEL is missing")),
-    );
+    )
+}
 
-    // replace {_1} // NOTE: probably don't do this? it's for old commands
+/// replace {_1}
+/// NOTE: probably don't do this? it's for old commands that I don't want to update for whatever reason
+fn replace_1_(response: String, msg: &PrivmsgMessage, command: &str) -> String {
     let rest_of_message = rest_of_chat_message(msg, command);
-    response = response.replace("{_1}", &rest_of_message);
-
-    // Signify the end
-    response
+    response.replace("{_1}", &rest_of_message)
 }
 
 // PrivmsgMessage {

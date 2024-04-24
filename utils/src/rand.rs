@@ -1,6 +1,6 @@
 //! Functions that use the rand crate
 
-use rand::{distributions::Alphanumeric, prelude::*, Rng};
+use rand::{distributions::Alphanumeric, prelude::*, seq::SliceRandom, Rng};
 
 /// Generates a random String of length from alphanumerics
 pub fn generate_password(length: usize) -> String {
@@ -22,4 +22,8 @@ pub fn random_number_1_to(num: i32) -> i32 {
     } else {
         num
     }
+}
+
+pub fn random_from_vec<T>(input: &Vec<T>) -> Option<&T> {
+    input.choose(&mut rand::thread_rng())
 }
