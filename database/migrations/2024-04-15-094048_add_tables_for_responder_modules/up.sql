@@ -147,7 +147,7 @@ INSERT INTO
     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
 VALUES
     -- (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
-    (6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?|epic', 'api::epic_store::free_games'),
+    (6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?', 'api::epic_store::free_games'),
     (7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
     (7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
     (7, 'Number Facts', NULL, '!numfact|!numberfact', NULL, 'core::facts::numfact'),
@@ -352,7 +352,7 @@ BEGIN
     -- Iterate over each row in the responders table
     WHILE counter <= row_count LOOP
         -- Insert a record into user_selected_responders for each responder for me
-        EXECUTE format('INSERT INTO user_selected_responders (user_id, responder_id) VALUES (167591621, %s)', counter);
+        EXECUTE format('INSERT INTO user_selected_responders (user_id, responder_id, permissions) VALUES (167591621, %s, 4)', counter);
         counter := counter + 1;
     END LOOP;
 END;

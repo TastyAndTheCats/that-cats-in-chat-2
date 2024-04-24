@@ -1,11 +1,13 @@
 //! Handles responses to normal chat messages
+use std::env;
 
 use crate::local_types::TwitchClient;
 use crate::responder;
+use api_consumers::twitch::users::lookup_user_from_login;
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
-use types::get;
 use utils::message::rest_of_chat_message;
+use utils::serde_json::unwrap_reqwest;
 
 mod automoderator;
 
@@ -60,12 +62,15 @@ async fn send_response_or_run_response_fn(
         client,
         Some(msg),
         match r.response_fn.is_some() {
-            true => insert_data_in_response(
-                responder::function_message(r, msg, command).await,
-                msg,
-                command,
-            ),
-            false => format_response(&r.response.as_ref().unwrap().to_owned(), msg, command),
+            true => {
+                insert_data_in_response(
+                    responder::function_message(r, msg, command).await,
+                    msg,
+                    command,
+                )
+                .await
+            }
+            false => format_response(&r.response.as_ref().unwrap().to_owned(), msg, command).await,
         },
         Some(r),
     )
@@ -73,24 +78,31 @@ async fn send_response_or_run_response_fn(
 }
 
 /// Formats the response message for Twitch chat
-fn format_response(r: &String, msg: &PrivmsgMessage, command: &str) -> String {
-    insert_data_in_response(r.to_owned(), msg, command)
+async fn format_response(r: &String, msg: &PrivmsgMessage, command: &str) -> String {
+    insert_data_in_response(r.to_owned(), msg, command).await
 }
 
 /// Rwplaces text variables (no format yet) with the real data where possible
-fn insert_data_in_response(response: String, msg: &PrivmsgMessage, command: &str) -> String {
+async fn insert_data_in_response(response: String, msg: &PrivmsgMessage, command: &str) -> String {
     let mut response = response;
+
     // Replace Sender Name
     response = response.replace("{sender}", &msg.sender.name);
+
     // Replace channel_name
-    let channel = get::channel(
-        Some(msg.channel_id.parse::<i32>().unwrap()),
-        Some(msg.channel_login.to_string()),
+    let user = unwrap_reqwest(lookup_user_from_login(&msg.channel_login).await).await;
+    println!("{}", user);
+    response = response.replace(
+        "{channel_name}",
+        user["data"][0]["display_name"]
+            .as_str()
+            .unwrap_or(&env::var("TWITCH_CHANNEL").expect("TWITCH_CHANNEL is missing")),
     );
-    response = response.replace("{channel_name}", &channel.name.unwrap());
-    // replace {_1}
+
+    // replace {_1} // NOTE: probably don't do this? it's for old commands
     let rest_of_message = rest_of_chat_message(msg, command);
     response = response.replace("{_1}", &rest_of_message);
+
     // Signify the end
     response
 }

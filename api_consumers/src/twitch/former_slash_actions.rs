@@ -1,5 +1,4 @@
 use reqwest::{Client, Error, Response};
-use serde_json;
 
 use utils::{serde_json::unwrap_reqwest, twitch::client_and_access_token, url::construct_url};
 

@@ -42,24 +42,26 @@ fn get_permissions_level(msg: &PrivmsgMessage) -> Permissions {
     return Permissions::ALL;
 }
 
-/// Whether the permissions level is sufficient for the responder permissions
+/// Whether the user's permissions level is sufficient for the responder permissions
 fn check_permissions(auth_level: Permissions, responder: &TwitchResponder) -> bool {
-    // This is sorted by complexity in terms of permissions, but might be better understood if organized by role rather than permission
-    // e.g. instead of "if responder.requires_vip what are valid permissions", do "if Permissions::VIP what are valid responder.requires_x values"
-    auth_level == Permissions::ALL
-    // Broadcaster-only
-    || responder.requires_broadcaster && auth_level == Permissions::BROADCASTER
-    // Moderator+
-    || (responder.requires_moderator
-        && (auth_level == Permissions::BROADCASTER || auth_level == Permissions::MODERATOR))
-    // VIP+
-    || (responder.requires_vip
-        && (auth_level == Permissions::BROADCASTER
-            || auth_level == Permissions::MODERATOR
-            || auth_level == Permissions::VIP))
-    // Subscriber+
-    || (responder.requires_subscriber
-        && (auth_level == Permissions::BROADCASTER
-            || auth_level == Permissions::MODERATOR
-            || auth_level == Permissions::SUBSCRIBER))
+    // auth_level describes the maximum available permission to an account, so we check if that's valid for the responder here
+
+    // If anyone can use the fn we shortcut the rest of the checks
+    Permissions::ALL == auth_level
+    // Broadcaster
+        || Permissions::BROADCASTER == auth_level
+            && (responder.requires_broadcaster
+                || responder.requires_moderator
+                || responder.requires_vip
+                || responder.requires_subscriber)
+    // Moderator
+        || Permissions::MODERATOR == auth_level
+            && (responder.requires_moderator
+                || responder.requires_vip
+                || responder.requires_subscriber)
+    // VIP
+        || Permissions::VIP == auth_level
+            && (responder.requires_vip || responder.requires_subscriber)
+    // Subscriber
+        || Permissions::SUBSCRIBER == auth_level && responder.requires_subscriber
 }

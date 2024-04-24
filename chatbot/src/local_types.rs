@@ -47,10 +47,13 @@ impl TokenStorage for RefreshingTokenStorage {
     async fn update_token(&mut self, token: &UserAccessToken) -> Result<(), Self::UpdateError> {
         let chatbot_info = bot::bot_from_owner_id(&self.channel_id).await.unwrap();
         let mut login_info = bot::bot_access_token(&chatbot_info.state).await.unwrap();
+        let initiated_at_dt = DateTime::from_timestamp(token.created_at.timestamp(), 0).unwrap();
+        let naive_initiated_at_dt =
+            NaiveDateTime::new(initiated_at_dt.date_naive(), initiated_at_dt.time());
 
         login_info.access_token = Some(token.access_token.to_owned());
         login_info.refresh_token = Some(token.refresh_token.to_owned());
-        login_info.initiated_at = NaiveDateTime::from_timestamp(token.created_at.timestamp(), 0);
+        login_info.initiated_at = naive_initiated_at_dt;
         login_info.token_expiry = Some(token.expires_at.unwrap().timestamp());
 
         bot::update_bot_access_token(&chatbot_info.state, login_info)

@@ -1,6 +1,6 @@
 //! Routes we use when logging in the user - and maybe shared parts too
 
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::{prelude::*, result};
 
 use crate::establish_connection;
@@ -14,13 +14,16 @@ pub fn initiate_login(
     is_broadcaster: bool,
     is_bot: bool,
 ) -> Result<LoginProcess, result::Error> {
+    let initiated_at_dt = DateTime::from_timestamp(Utc::now().timestamp(), 0).unwrap();
+    let naive_initiated_at_dt =
+        NaiveDateTime::new(initiated_at_dt.date_naive(), initiated_at_dt.time());
     let login = LoginProcess {
         state: state.to_string(),
         scope: scope.to_string(),
         code: None,
         is_broadcaster: is_broadcaster,
         is_bot: is_bot,
-        initiated_at: NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0), // TODO: make better
+        initiated_at: naive_initiated_at_dt, // TODO: make better
         refresh_token: None,
         token_expiry: None,
         access_token: None,
