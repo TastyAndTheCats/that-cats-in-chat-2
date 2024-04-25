@@ -59,7 +59,7 @@ fn cmd_dogfact() -> String {
 
 fn cmd_fortunecookies() -> String {
     format!(
-        "Dog fact for {{sender}}: {}",
+        "Fortune for {{sender}}: {}",
         x_facts("fortune_cookies.txt")
     )
 }

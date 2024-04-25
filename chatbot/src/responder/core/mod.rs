@@ -22,7 +22,8 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
 }
 
 fn cmd_commands_list() -> String {
-    let possible_responses = Vec::from(["This is under construction"]);
+    // TODO: automate this somehow
+    let possible_responses = Vec::from(["!dogfact, !catfact, !numfact, !chuckfact, !tpb, !advice, !fortune, !epic, !oeis, !time, !dwarfme, !thecats, !commands"]);
 
     random_from_vec(&possible_responses).unwrap().to_string()
 }
