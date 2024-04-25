@@ -58,10 +58,7 @@ fn cmd_dogfact() -> String {
 }
 
 fn cmd_fortunecookies() -> String {
-    format!(
-        "Fortune for {{sender}}: {}",
-        x_facts("fortune_cookies.txt")
-    )
+    format!("Fortune for {{sender}}: {}", x_facts("fortune_cookies.txt"))
 }
 
 fn cmd_numfact() -> String {

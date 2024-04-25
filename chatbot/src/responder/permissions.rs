@@ -44,24 +44,20 @@ fn get_permissions_level(msg: &PrivmsgMessage) -> Permissions {
 
 /// Whether the user's permissions level is sufficient for the responder permissions
 fn check_permissions(auth_level: Permissions, responder: &TwitchResponder) -> bool {
-    // auth_level describes the maximum available permission to an account, so we check if that's valid for the responder here
-
-    // If anyone can use the fn we shortcut the rest of the checks
-    Permissions::ALL == auth_level
-    // Broadcaster
-        || Permissions::BROADCASTER == auth_level
-            && (responder.requires_broadcaster
-                || responder.requires_moderator
-                || responder.requires_vip
-                || responder.requires_subscriber)
-    // Moderator
-        || Permissions::MODERATOR == auth_level
-            && (responder.requires_moderator
-                || responder.requires_vip
-                || responder.requires_subscriber)
-    // VIP
-        || Permissions::VIP == auth_level
-            && (responder.requires_vip || responder.requires_subscriber)
-    // Subscriber
-        || Permissions::SUBSCRIBER == auth_level && responder.requires_subscriber
+    if responder.requires_broadcaster {
+        Permissions::BROADCASTER == auth_level
+    } else if responder.requires_moderator {
+        Permissions::BROADCASTER == auth_level || Permissions::MODERATOR == auth_level
+    } else if responder.requires_vip {
+        Permissions::BROADCASTER == auth_level
+            || Permissions::MODERATOR == auth_level
+            || Permissions::VIP == auth_level
+    } else if responder.requires_subscriber {
+        Permissions::BROADCASTER == auth_level
+            || Permissions::MODERATOR == auth_level
+            || Permissions::VIP == auth_level
+            || Permissions::SUBSCRIBER == auth_level
+    } else {
+        true
+    }
 }

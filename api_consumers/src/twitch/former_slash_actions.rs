@@ -25,6 +25,6 @@ pub async fn shoutout(from_id: &str, to_login: &str) -> Result<Response, Error> 
         .post(url)
         .header("Authorization", format!("Bearer {}", access_token))
         .header("Client-Id", client_id);
-    println!("{:?}", req);
+    println!("req: {:?}", req);
     req.send().await
 }

@@ -11,11 +11,11 @@ pub async fn dispatch(
 ) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
     if response_fn == "core::info" {
-        return cmd_info();
-    } else if response_fn.starts_with("core::info::time") {
-        return cmd_time();
+        cmd_info()
+    } else if response_fn == "core::info::time" {
+        cmd_time()
     } else {
-        return "Unknown Function (info)".to_owned();
+        "Unknown Function (info)".to_owned()
     }
 }
 

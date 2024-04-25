@@ -157,7 +157,7 @@ VALUES
     (7, 'Rickyism', NULL, '!ricky|!tpb', NULL, 'core::facts::rickyism'),
     (7, 'Integer Sequences', NULL, '!oeis|!integers', NULL, 'core::facts::oeis'),
     (8, 'Time', '!time', NULL, NULL, 'core::info::time'),
-    (8, 'Weather', '!weather', NULL, NULL, 'core::info::weather'),
+    (8, 'Weather', '!weather', NULL, NULL, 'api::openweathermap::weather'),
     (4, 'Wikia', '!wikia', NULL, NULL, 'api::wikia::lookup'),
     (4, 'Wikipedia (Long)', '!wikipedia', NULL, NULL, 'api::wikipedia::lookup_full'),
     (4, 'Wikipedia (Short)', '!wiki', NULL, NULL, 'api::wikipedia::lookup'),

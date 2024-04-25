@@ -1,10 +1,10 @@
 
--- INSERT INTO
---     twitch_bot_responders (id, responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
--- VALUES
---     (113, 6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?', 'api::epic_store::free_games');
+INSERT INTO
+    twitch_bot_responders (id, responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
+VALUES
+    (113, 6, 'Full Weather', '!maxweather', NULL, NULL, 'api::openweathermap::weather_full');
 
--- INSERT INTO user_selected_responders (user_id, responder_id, permissions) VALUES (167591621, 113, 4);
+INSERT INTO user_selected_responders (user_id, responder_id, permissions) VALUES (167591621, 113, 1);
 
 -- NOTES:
 -- PERMISSIONS

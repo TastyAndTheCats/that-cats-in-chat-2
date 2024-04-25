@@ -92,7 +92,7 @@ fn replace_sender_name(response: String, msg: &PrivmsgMessage) -> String {
 /// Replace {channel_name} with channel display name
 async fn replace_channel_name(response: String, msg: &PrivmsgMessage) -> String {
     let user = unwrap_reqwest(lookup_user_from_login(&msg.channel_login).await).await;
-    println!("{}", user);
+    println!("replace_channel_name: {}", user);
     response.replace(
         "{channel_name}",
         user["data"][0]["display_name"]

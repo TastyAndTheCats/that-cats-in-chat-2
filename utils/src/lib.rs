@@ -4,6 +4,7 @@
 
 pub mod file;
 pub mod message;
+pub mod metric;
 pub mod num;
 pub mod rand;
 pub mod serde_json;
