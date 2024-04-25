@@ -10,15 +10,6 @@ use crate::{
     },
 };
 
-// pub async fn get_responders_for_user(user_id: i32) -> Result<Vec<TwitchResponder>, result::Error> {
-//     get_combined_responders_for_user(user_id).unwrap();
-//     twitch_bot_responders::table
-//         .inner_join(user_selected_responders::table)
-//         .filter(user_selected_responders::user_id.eq(user_id))
-//         .select(TwitchResponder::as_select())
-//         .load(&mut establish_connection())
-// }
-
 pub fn get_access_token(id: Option<i32>) -> Result<LoginProcess, result::Error> {
     twitch_user::table
         .inner_join(twitch_login_process::table)

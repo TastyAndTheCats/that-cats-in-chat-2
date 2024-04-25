@@ -103,7 +103,7 @@ fn x_facts(filename: &str) -> String {
         env::current_dir().unwrap().display(),
         filename
     );
-    // println!("filepath: {}", filepath);
+    // tracing::debug!("filepath: {}", filepath);
     let facts = load_lines_from_file(filepath);
     let facts_length = facts.len().try_into().unwrap_or(0);
     let fact_choice: usize = random_number_0_to(facts_length).try_into().unwrap();

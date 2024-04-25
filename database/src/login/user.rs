@@ -106,3 +106,37 @@ pub fn save_initial_user_details(
         // --- end conflict handling
         .execute(&mut establish_connection())
 }
+
+pub fn get_refresh_token(user_id: i32) -> Result<Option<String>, result::Error> {
+    twitch_user::table
+        .inner_join(twitch_login_process::table)
+        .filter(twitch_user::id.eq(user_id))
+        .select(twitch_login_process::refresh_token)
+        .get_result(&mut establish_connection())
+}
+
+pub fn update_refresh_token(user_id: i32, access_token: &str, refresh_token: &str) {
+    let user_state = get_user_state_from_id(user_id).unwrap_or(None);
+    match user_state {
+        Some(state) => {
+            let state_copy = state.to_owned();
+            diesel::update(twitch_login_process::table.find(state))
+                .set((
+                    twitch_login_process::state.eq(state_copy),
+                    twitch_login_process::refresh_token.eq(refresh_token),
+                    twitch_login_process::access_token.eq(access_token),
+                ))
+                .returning(LoginProcess::as_returning())
+                .get_result(&mut establish_connection())
+                .unwrap();
+        }
+        None => {}
+    }
+}
+
+fn get_user_state_from_id(user_id: i32) -> Result<Option<String>, result::Error> {
+    twitch_user::table
+        .filter(twitch_user::id.eq(user_id))
+        .select(twitch_user::login_state)
+        .get_result::<Option<String>>(&mut establish_connection())
+}

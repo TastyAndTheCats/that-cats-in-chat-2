@@ -3,5 +3,6 @@
 
 pub mod epic; // Epic Game Store API routes
 pub mod oeis; // OEIS routes
-pub mod openweathermap;
+pub mod openweathermap; // Weather routes
 pub mod twitch; // Twitch API routes
+pub mod wikia; // Wikia/fandom routes

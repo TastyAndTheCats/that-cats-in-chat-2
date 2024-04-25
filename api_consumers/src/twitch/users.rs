@@ -1,25 +1,15 @@
 //! Calls to https://api.twitch.tv/helix/users
+use reqwest::{Error, Response};
 
-use reqwest::{Client, Error, Response};
-
-use utils::{self, twitch::client_and_access_token};
+use crate::twitch::get;
 
 pub async fn lookup_user_from_login(login: &str) -> Result<Response, Error> {
-    let (client_id, access_token) = client_and_access_token(None);
-    Client::new()
-        .get(format!(
+    get(
+        &format!(
             "https://api.twitch.tv/helix/users?login={}",
             login.to_lowercase()
-        ))
-        .header(
-            "Authorization",
-            format!("Bearer {}", access_token.expect("Invalid client_id")),
-        )
-        .header("Client-Id", client_id)
-        .body(utils::url::compose_post_body(vec![(
-            "login",
-            login.to_lowercase(),
-        )]))
-        .send()
-        .await
+        ),
+        None,
+    )
+    .await
 }

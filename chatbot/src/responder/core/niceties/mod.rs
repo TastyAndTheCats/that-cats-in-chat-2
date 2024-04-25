@@ -37,8 +37,8 @@ async fn cmd_shoutout(msg: &PrivmsgMessage, command: &str) -> String {
 
     match shoutout(&msg.channel_id, so_name).await {
         Ok(resp) => {
-            println!("resp status: {}", resp.status());
-            println!("resp: {:?}", resp);
+            tracing::debug!("resp status: {}", resp.status());
+            tracing::debug!("resp: {:?}", resp);
             format!("{} ⟹⟹⟹ {}", game_message, so_description,)
         }
         Err(_) => {

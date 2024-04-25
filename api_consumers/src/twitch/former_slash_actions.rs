@@ -1,6 +1,8 @@
-use reqwest::{Client, Error, Response};
+use reqwest::{Error, Response};
 
 use utils::{serde_json::unwrap_reqwest, twitch::client_and_access_token, url::construct_url};
+
+use crate::twitch;
 
 use super::users::lookup_user_from_login;
 
@@ -16,15 +18,13 @@ pub async fn shoutout(from_id: &str, to_login: &str) -> Result<Response, Error> 
     let access_token = access_token.expect("Invalid client_id");
 
     let url = construct_url("https://api.twitch.tv/helix/chat/shoutouts", params);
-    println!(
+
+    tracing::debug!(
         "url: {}, Bearer: {}, Client-Id: {}",
-        url, access_token, client_id
+        url,
+        access_token,
+        client_id
     );
 
-    let req = Client::new()
-        .post(url)
-        .header("Authorization", format!("Bearer {}", access_token))
-        .header("Client-Id", client_id);
-    println!("req: {:?}", req);
-    req.send().await
+    twitch::post(&url, vec![], Some(from_id.parse::<i32>().unwrap())).await
 }

@@ -4,7 +4,7 @@ use diesel::{prelude::*, result};
 
 use crate::establish_connection;
 use crate::models::TwitchBot;
-use crate::schema::twitch_bot;
+use crate::schema::{twitch_bot, twitch_login_process, twitch_user};
 
 pub async fn bot_owner(bot_id: &i32) -> Result<TwitchBot, result::Error> {
     twitch_bot::table
@@ -14,7 +14,7 @@ pub async fn bot_owner(bot_id: &i32) -> Result<TwitchBot, result::Error> {
 }
 
 pub async fn bot_owner_from_state(state: &str) -> Result<TwitchBot, result::Error> {
-    println!("state: {}", state);
+    tracing::debug!("state: {}", state);
     twitch_bot::table
         .filter(twitch_bot::state.eq(state))
         .select(TwitchBot::as_select())

@@ -31,7 +31,9 @@ pub async fn main() {
 
 /// Things needed for the app to work
 fn start_app() {
-    tracing_subscriber::fmt::init(); // Logging setup
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init(); // Logging setup
     dotenv().expect(".env file not found"); // load environment variables from .env file
 }
 
@@ -79,6 +81,6 @@ async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
 /// TODO: remove this, it's nice to be able to see what's loaded though
 fn list_responders_in_console(responders: &Vec<TwitchResponder>) {
     for r in responders {
-        println!("r: {}", r);
+        tracing::debug!("r: {}", r);
     }
 }

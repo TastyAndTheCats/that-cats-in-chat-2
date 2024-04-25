@@ -23,7 +23,7 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
 async fn cmd_weather(msg: &PrivmsgMessage, command: &str) -> String {
     let rest_of_message = rest_of_chat_message(msg, command);
     let weather_json = unwrap_reqwest(get_weather_at(&rest_of_message).await).await;
-    // println!("weather_json: {:?}", weather_json);
+    // tracing::debug!("weather_json: {:?}", weather_json);
     cmd_weather_short(&rest_of_message, &weather_json)
 }
 
