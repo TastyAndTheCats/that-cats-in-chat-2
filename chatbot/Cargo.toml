@@ -11,6 +11,7 @@ async-trait = "0.1.80"
 chrono = "0.4.37"
 database = { path="../database" }
 dotenvy = "0.15.7"
+regex = "1.10.4"
 serde_json = "1.0.115"
 tokio = { version = "1.37.0", features = ["rt-multi-thread"] }
 tracing = "0.1.40"

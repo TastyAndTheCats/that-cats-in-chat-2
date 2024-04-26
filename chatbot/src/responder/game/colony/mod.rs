@@ -14,51 +14,48 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
 async fn cmd_tribute(responder: &TwitchResponder, msg: &PrivmsgMessage, command: &str) -> String {
     let user_id = msg.sender.id.parse::<i32>().unwrap_or(0);
     let responder_id = responder.id;
+    let remaining_volunteers = responder::get_count(user_id, responder_id).unwrap_or(0);
     if msg.sender.login == msg.channel_login {
-        let update_count_to: i32 = first_word_after_command_as_number(msg, command).unwrap_or(-1);
-        if update_count_to > -1 {
-            let db_response = responder::update_count(user_id, responder_id, update_count_to);
-            if update_count_to > 0 {
-                match db_response {
-                    Ok(_) => match command {
-                        "!tribute" => {
-                            return format!(
+        let update_count_to: i32 =
+            remaining_volunteers + first_word_after_command_as_number(msg, command).unwrap_or(-1);
+        let db_response = responder::update_count(user_id, responder_id, update_count_to);
+        if update_count_to > 0 {
+            match db_response {
+                Ok(_) => match command {
+                    "!tribute" => {
+                        return format!(
                                 "The call goes out: {} more tributes are needed for {{sender}}'s army! Use !tribute to make your name known.", 
                                 update_count_to
                             );
-                        }
-                        "!dwarfme" => {
-                            return format!(
+                    }
+                    "!dwarfme" => {
+                        return format!(
                                 "Migrants have arrived! There are {} unanointed Dwarfs in {{sender}}'s fortress. Use !dwarfme to strike the earth.", 
                                 update_count_to
                             );
-                        }
-                        "!volunteer" | _ => {
-                            return format!(
+                    }
+                    "!volunteer" | _ => {
+                        return format!(
                                 "Volunteer or be voluntold! {} more sacrifices are needed! Use !volunteer to get ahead of the draft.", 
                                 update_count_to
                             );
-                        }
-                    },
-                    Err(_) => {
-                        return format!(
-                            "Sorry {{sender}} we were unable to set count to {} for {}",
-                            update_count_to, command
-                        )
                     }
+                },
+                Err(_) => {
+                    return format!(
+                        "Sorry {{sender}} we were unable to set count to {} for {}",
+                        update_count_to, command
+                    )
                 }
-            } else {
-                match db_response {
-                    Ok(_) => return format!("{{sender}}, {} has been reset.", command),
-                    Err(_) => {
-                        return format!("Sorry {{sender}} we were unable to reset {}", command)
-                    }
-                }
+            }
+        } else {
+            match db_response {
+                Ok(_) => return format!("{{sender}}, {} has been reset.", command),
+                Err(_) => return format!("Sorry {{sender}} we were unable to reset {}", command),
             }
         }
     }
 
-    let remaining_volunteers = responder::get_count(user_id, responder_id).unwrap_or(0);
     if remaining_volunteers > 0 {
         responder::update_count(user_id, responder_id, remaining_volunteers - 1).expect(&format!(
             "Unable to step down the count for {}:{}",

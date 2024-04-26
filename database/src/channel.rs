@@ -2,9 +2,7 @@
 
 use diesel::{prelude::*, result};
 
-use crate::establish_connection;
-use crate::models::TwitchBot;
-use crate::schema::{twitch_bot, twitch_login_process, twitch_user};
+use crate::{establish_connection, models::TwitchBot, schema::twitch_bot};
 
 pub async fn bot_owner(bot_id: &i32) -> Result<TwitchBot, result::Error> {
     twitch_bot::table

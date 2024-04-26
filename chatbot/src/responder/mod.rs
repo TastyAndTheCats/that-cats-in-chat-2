@@ -14,7 +14,7 @@ mod core;
 mod game;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
-async fn send_message_to(client: &TwitchClient, channel_name: String, message: String) {
+async fn send_message_to(client: TwitchClient, channel_name: String, message: String) {
     client
         .me(channel_name, message.replace('\n', "").to_owned())
         .await
@@ -23,7 +23,7 @@ async fn send_message_to(client: &TwitchClient, channel_name: String, message: S
 
 /// Send a message to the TWITCH_CHANNEL
 pub async fn send(
-    client: &TwitchClient,
+    client: TwitchClient,
     msg: Option<&PrivmsgMessage>,
     message: String,
     responder: Option<&TwitchResponder>,
@@ -56,8 +56,8 @@ pub async fn send(
 
 /// Run a function to generate a message to send to the TWITCH_CHANNEL
 pub async fn function_message(
-    responder: &TwitchResponder,
-    msg: &PrivmsgMessage,
+    responder: TwitchResponder,
+    msg: PrivmsgMessage,
     command: &str,
 ) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
@@ -66,11 +66,11 @@ pub async fn function_message(
         "" | "default" | "text" => responder.response.as_ref().unwrap().to_owned(),
         _ => {
             if response_fn.starts_with("core") {
-                core::dispatch(responder, msg, command).await
+                core::dispatch(&responder, &msg, command).await
             } else if response_fn.starts_with("api") {
-                api::dispatch(responder, msg, command).await
+                api::dispatch(&responder, &msg, command).await
             } else if response_fn.starts_with("game") {
-                game::dispatch(responder, msg, command).await
+                game::dispatch(&responder, &msg, command).await
             } else {
                 format!("Unknown response Function: {}", response_fn)
             }

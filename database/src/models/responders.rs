@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use crate::schema;
 
 /// The functional unit used when deciding/responding to messages
-#[derive(Debug, Queryable)]
+#[derive(Debug, Queryable, Clone)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchResponder {
     pub id: i32,

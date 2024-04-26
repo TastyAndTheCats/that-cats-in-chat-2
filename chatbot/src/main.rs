@@ -46,11 +46,11 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
     tracing::info!("{:?}", client.get_channel_status(channel.login).await);
 
     list_responders_in_console(&responders);
-    say_hello(&client, &responders).await;
+    say_hello(client.clone(), &responders).await;
 
-    tokio::spawn(
-        async move { handler::dispatch(&client.clone(), incoming_messages, &responders).await },
-    )
+    tokio::spawn(async move {
+        handler::dispatch(client.clone(), incoming_messages, responders.clone()).await
+    })
 }
 
 /// Things that need to happen before the bot starts listening to the channel
@@ -60,12 +60,12 @@ async fn bot_initialization() -> Vec<TwitchResponder> {
 }
 
 /// Hard-coded pre-init greeting
-async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
+async fn say_hello(client: TwitchClient, responders: &Vec<TwitchResponder>) {
     for r in responders {
         match r.title.as_str() {
             "Say Hello" => {
                 responder::send(
-                    client,
+                    client.clone(),
                     None,
                     r.response.as_ref().unwrap().to_string(),
                     Some(r),

@@ -12,9 +12,9 @@ use crate::local_types::TwitchClient;
 
 /// Decides what sort of message is being received by the chatbot and what to do about it
 pub async fn dispatch(
-    client: &TwitchClient,
+    client: TwitchClient,
     mut incoming_messages: UnboundedReceiver<ServerMessage>,
-    responders: &Vec<TwitchResponder>,
+    responders: Vec<TwitchResponder>,
 ) {
     while let Some(message) = incoming_messages.recv().await {
         match message {
@@ -25,7 +25,7 @@ pub async fn dispatch(
                     &msg.sender.name,
                     &msg.message_text
                 );
-                privmsgs::dispatch(client, msg, responders).await;
+                privmsgs::dispatch(client.clone(), msg, responders.clone()).await;
             }
 
             ServerMessage::Whisper(msg) => {
