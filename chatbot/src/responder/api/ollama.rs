@@ -1,5 +1,3 @@
-use std::iter::Map;
-
 use api_consumers::ollama::{LlamaBot, Talk};
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;

@@ -5,7 +5,7 @@
 
 use database::models::responders::TwitchResponder;
 use tokio::{self, sync::mpsc::UnboundedReceiver};
-use twitch_irc::message::ServerMessage;
+use twitch_irc::message::{FollowersOnlyMode, ServerMessage};
 
 mod privmsgs;
 use crate::local_types::TwitchClient;
@@ -18,6 +18,21 @@ pub async fn dispatch(
 ) {
     while let Some(message) = incoming_messages.recv().await {
         match message {
+            ServerMessage::Generic(msg) => {
+                tracing::debug!("{:?}", msg)
+            }
+            ServerMessage::GlobalUserState(msg) => {
+                tracing::info!("{} is here", msg.user_name);
+            }
+            ServerMessage::Join(msg) => {
+                tracing::info!("{} joined {}", msg.user_login, msg.channel_login);
+            }
+            ServerMessage::Ping(_msg) => {
+                tracing::debug!("|.     ");
+            }
+            ServerMessage::Pong(_msg) => {
+                tracing::debug!("     .|");
+            }
             ServerMessage::Privmsg(msg) => {
                 tracing::info!(
                     "#{} {}: {}",
@@ -27,15 +42,32 @@ pub async fn dispatch(
                 );
                 privmsgs::dispatch(client.clone(), msg, responders.clone()).await;
             }
-
+            ServerMessage::RoomState(msg) => {
+                tracing::debug!(
+                    "{}:#{} {} {}",
+                    msg.channel_id,
+                    msg.channel_login,
+                    if msg.subscribers_only.unwrap_or(false) {
+                        "subscriber-only chat"
+                    } else if msg.follwers_only.unwrap_or(FollowersOnlyMode::Disabled)
+                        != FollowersOnlyMode::Disabled
+                    {
+                        "follower-only chat"
+                    } else {
+                        "any-message"
+                    },
+                    if msg.emote_only.unwrap_or(false) {
+                        "emote-only"
+                    } else {
+                        "any-text"
+                    }
+                );
+            }
+            ServerMessage::UserState(msg) => {
+                tracing::info!("{} is here", msg.user_name);
+            }
             ServerMessage::Whisper(msg) => {
                 tracing::info!("Received whisper: {:?}", msg);
-            }
-            ServerMessage::Ping(msg) => {
-                tracing::debug!("Pinged: {:?}", msg);
-            }
-            ServerMessage::Pong(msg) => {
-                tracing::debug!("Ponged: {:?}", msg);
             }
             _ => {
                 tracing::info!("Received something else: {:?}", message);
