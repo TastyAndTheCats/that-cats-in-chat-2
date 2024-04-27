@@ -15,21 +15,31 @@ pub mod users; // Twitch User Related Lookups // Twitch Channel Related Lookups
 enum RequestVerb {
     GET,
     POST,
+    PATCH,
 }
 
-/// GET: If the response is invalid, refresh the tokens and try again
+/// GET:
 pub async fn get(url: &str, user_id: Option<i32>) -> Result<Response, Error> {
     request(RequestVerb::GET, url, user_id, None).await
 }
 
 pub async fn post(
     url: &str,
-    params: Vec<(&str, String)>,
+    params: Option<Vec<(&str, String)>>,
     user_id: Option<i32>,
 ) -> Result<Response, Error> {
-    request(RequestVerb::POST, url, user_id, Some(params)).await
+    request(RequestVerb::POST, url, user_id, params).await
 }
 
+pub async fn patch(
+    url: &str,
+    params: Option<Vec<(&str, String)>>,
+    user_id: Option<i32>,
+) -> Result<Response, Error> {
+    request(RequestVerb::PATCH, url, user_id, params).await
+}
+
+/// If the response is a 401, refresh the tokens and try again
 async fn request(
     verb: RequestVerb,
     url: &str,
@@ -48,10 +58,13 @@ async fn request(
         RequestVerb::POST => post_req(url, params.unwrap_or(vec![]), user_id)
             .await
             .unwrap(),
+        RequestVerb::PATCH => patch_req(url, params.unwrap_or(vec![]), user_id)
+            .await
+            .unwrap(),
     };
     // let result = post_req(url, params, user_id).await.unwrap();
     match result.status() {
-        StatusCode::OK => Ok(result),
+        StatusCode::OK | StatusCode::NO_CONTENT => Ok(result),
         StatusCode::UNAUTHORIZED => {
             auth::token::refresh(user_id).await;
             get_req(url, user_id).await
@@ -63,6 +76,7 @@ async fn request(
     }
 }
 
+/// GET: If the response is invalid, refresh the tokens and try again
 async fn get_req(url: &str, user_id: i32) -> Result<Response, Error> {
     let (client_id, access_token) = twitch::client_and_access_token(Some(user_id));
     Client::new()
@@ -86,6 +100,26 @@ async fn post_req(url: &str, params: Vec<(&str, String)>, user_id: i32) -> Resul
             format!("Bearer {}", access_token.unwrap_or(String::new())),
         )
         .header("Client-Id", client_id)
+        .body(compose_post_body(&params))
+        .send()
+        .await
+}
+
+/// PATCH: If the response is invalid, refresh the tokens and try again
+async fn patch_req(
+    url: &str,
+    params: Vec<(&str, String)>,
+    user_id: i32,
+) -> Result<Response, Error> {
+    let (client_id, access_token) = twitch::client_and_access_token(Some(user_id));
+    Client::new()
+        .patch(url)
+        .header(
+            "Authorization",
+            format!("Bearer {}", access_token.unwrap_or(String::new())),
+        )
+        .header("Client-Id", client_id)
+        .header("Content-Type", "application/x-www-form-urlencoded")
         .body(compose_post_body(&params))
         .send()
         .await

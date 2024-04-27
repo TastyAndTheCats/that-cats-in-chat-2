@@ -26,5 +26,5 @@ pub async fn shoutout(from_id: &str, to_login: &str) -> Result<Response, Error> 
         client_id
     );
 
-    twitch::post(&url, vec![], Some(from_id.parse::<i32>().unwrap())).await
+    twitch::post(&url, None, Some(from_id.parse::<i32>().unwrap())).await
 }
