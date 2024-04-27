@@ -8,5 +8,10 @@ pub async fn random_sequence() -> Result<Response, Error> {
 
 pub async fn get_sequence(sequence: i32) -> Result<Response, Error> {
     let url = format!("https://oeis.org/search?fmt=json&q=id:A{}", sequence);
-    Client::new().get(url).send().await
+    Client::new()
+        .get(url)
+        .header("User-Agent", "TheCatsInChat")
+        .header("Api-User-Agent", "tasty@tastyandthecats.com")
+        .send()
+        .await
 }

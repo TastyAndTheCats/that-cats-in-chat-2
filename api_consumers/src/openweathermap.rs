@@ -10,7 +10,12 @@ pub async fn get_weather_at(location: &str) -> Result<Response, Error> {
         "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}",
         lat, lng, api_key
     );
-    Client::new().get(url).send().await
+    Client::new()
+        .get(url)
+        .header("User-Agent", "TheCatsInChat")
+        .header("Api-User-Agent", "tasty@tastyandthecats.com")
+        .send()
+        .await
 }
 
 async fn get_lat_lng_from_location(location: &str) -> (String, String) {
@@ -29,7 +34,12 @@ async fn geocoding(location: &str) -> Result<Response, Error> {
         "http://api.openweathermap.org/geo/1.0/direct?q={}&limit=1&appid={}",
         location, api_key
     );
-    Client::new().get(url).send().await
+    Client::new()
+        .get(url)
+        .header("User-Agent", "TheCatsInChat")
+        .header("Api-User-Agent", "tasty@tastyandthecats.com")
+        .send()
+        .await
 }
 
 fn separate_location_into_constituent_parts(location: &str) -> Vec<&str> {

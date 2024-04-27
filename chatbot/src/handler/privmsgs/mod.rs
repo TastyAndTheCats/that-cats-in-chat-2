@@ -1,4 +1,5 @@
 //! Handles responses to normal chat messages
+use regex::Regex;
 use std::env;
 
 use crate::local_types::TwitchClient;
@@ -17,67 +18,67 @@ pub async fn dispatch(client: TwitchClient, msg: PrivmsgMessage, responders: Vec
         let m = msg.message_text.to_lowercase();
         for r in responders {
             if let Some(starts_with) = &r.starts_with {
-                let starts_with = starts_with.clone(); // Clone starts_with
-                for opt in starts_with.split("|") {
-                    let responder = r.clone();
-                    let this_client = client.clone();
-                    let this_msg = msg.clone();
-                    let opt = opt.to_owned(); // Convert opt to owned String
-                    if m.starts_with(&opt) {
-                        tokio::spawn(async move {
-                            send_response_or_run_response_fn(
-                                this_client,
-                                responder,
-                                this_msg,
-                                &opt,
-                            )
-                            .await;
-                        });
-                    }
-                }
+                dispatch_with_regex(
+                    client.clone(),
+                    msg.clone(),
+                    &r,
+                    m.to_owned(),
+                    starts_with,
+                    (r"^", r"\b.*?$"),
+                );
             }
-
             if let Some(contains) = &r.contains {
-                let contains = contains.clone(); // Clone contains
-                for opt in contains.split("|") {
-                    let responder = r.clone();
-                    let this_client = client.clone();
-                    let this_msg = msg.clone();
-                    let opt = opt.to_owned(); // Convert opt to owned String
-                    if m.contains(&opt) {
-                        tokio::spawn(async move {
-                            send_response_or_run_response_fn(
-                                this_client,
-                                responder,
-                                this_msg,
-                                &opt,
-                            )
-                            .await;
-                        });
-                    }
-                }
+                dispatch_with_regex(
+                    client.clone(),
+                    msg.clone(),
+                    &r,
+                    m.to_owned(),
+                    contains,
+                    (r"^.*\W?", r"\b.*?$"),
+                );
             }
-
             if let Some(ends_with) = &r.ends_with {
-                let ends_with = ends_with.clone(); // Clone ends_with
-                for opt in ends_with.split("|") {
-                    let responder = r.clone();
-                    let this_client = client.clone();
-                    let this_msg = msg.clone();
-                    let opt = opt.to_owned(); // Convert opt to owned String
-                    if m.ends_with(&opt) {
-                        tokio::spawn(async move {
-                            send_response_or_run_response_fn(
-                                this_client,
-                                responder,
-                                this_msg,
-                                &opt,
-                            )
-                            .await;
-                        });
-                    }
-                }
+                dispatch_with_regex(
+                    client.clone(),
+                    msg.clone(),
+                    &r,
+                    m.to_owned(),
+                    ends_with,
+                    (r"^.*\W?", r"$"),
+                );
             }
+        }
+    }
+}
+
+fn dispatch_with_regex(
+    client: TwitchClient,
+    msg: PrivmsgMessage,
+    r: &TwitchResponder,
+    m: String,
+    parts_list: &String,
+    re_template: (&str, &str),
+) {
+    let string_options: Vec<&str> = parts_list.split("|").collect();
+    let regex_options: Vec<(String, Regex)> = string_options
+        .into_iter()
+        .map(|cmd| {
+            (
+                cmd.to_owned(),
+                Regex::new(&format!(r"{}{}{}", re_template.0, cmd, re_template.1)).unwrap(),
+            )
+        })
+        .rev()
+        .collect();
+
+    for (opt, re) in regex_options {
+        let re = re.to_owned(); // Convert opt to owned String
+        let r = r.clone();
+        if re.is_match(&m) {
+            tokio::spawn(async move {
+                send_response_or_run_response_fn(client, r, msg, &opt).await;
+            });
+            break;
         }
     }
 }

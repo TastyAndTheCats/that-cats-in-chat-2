@@ -147,7 +147,7 @@ INSERT INTO
     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
 VALUES
     -- (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
-    (6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?', 'api::epic_store::free_games'),
+    (6, 'Epic Store Free Games', NULL, 'epic', NULL, 'api::epic_store::free_games'),
     (7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
     (7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
     (7, 'Number Facts', NULL, '!numfact|!numberfact', NULL, 'core::facts::numfact'),
