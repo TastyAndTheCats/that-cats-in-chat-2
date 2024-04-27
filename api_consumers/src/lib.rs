@@ -6,4 +6,5 @@ pub mod oeis; // OEIS routes
 pub mod ollama; // LLM routes
 pub mod openweathermap; // Weather routes
 pub mod twitch; // Twitch API routes
-pub mod wikipedia;
+pub mod wikipedia; // Wikipedia
+pub mod words; // Dick Tionary and The Saurus

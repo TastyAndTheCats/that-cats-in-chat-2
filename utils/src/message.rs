@@ -32,3 +32,14 @@ pub fn first_word_after_command_as_number(
 ) -> Result<i32, ParseIntError> {
     single_word_after_command(msg, command).parse::<i32>()
 }
+
+pub fn truncate_response_for_twitch(msg: String) -> String {
+    let msg = msg.split("\n").collect::<Vec<&str>>()[0].to_owned();
+
+    let max_len = 460;
+    if msg.len() >= max_len {
+        format!("{}…", msg[..max_len].to_owned())
+    } else {
+        msg.to_owned()
+    }
+}

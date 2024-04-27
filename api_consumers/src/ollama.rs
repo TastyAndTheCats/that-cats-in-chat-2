@@ -5,6 +5,7 @@ use ollama_rs::{
     generation::completion::{request::GenerationRequest, GenerationResponse},
     Ollama,
 };
+use utils::message::truncate_response_for_twitch;
 
 #[derive(Copy, Clone)]
 pub struct LlamaBot<'a> {
@@ -20,16 +21,6 @@ pub trait Talk {
         model: String,
         prompt: String,
     ) -> impl Future<Output = Result<GenerationResponse, OllamaError>>;
-
-    fn truncate_response_for_twitch(&self, resp: String) -> String {
-        let resp = resp.split("\n").collect::<Vec<&str>>()[0].to_owned();
-        let resp = if resp.len() > 450 {
-            resp[..450].to_owned()
-        } else {
-            resp.to_owned()
-        };
-        resp
-    }
 }
 
 impl Talk for LlamaBot<'_> {
@@ -46,7 +37,7 @@ impl Talk for LlamaBot<'_> {
         } else {
             String::new()
         };
-        let short_resp = self.truncate_response_for_twitch(full_resp);
+        let short_resp = truncate_response_for_twitch(full_resp);
         tracing::debug!("{} response: {}", self.model, short_resp);
         short_resp
     }

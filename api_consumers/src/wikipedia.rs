@@ -1,5 +1,5 @@
 use reqwest::{Client, Error, Response};
-use utils::serde_json::unwrap_reqwest;
+use utils::{message::truncate_response_for_twitch, serde_json::unwrap_reqwest};
 
 pub async fn lookup(title: String) -> String {
     let page = unwrap_reqwest(get_wiki(title).await).await;
@@ -17,12 +17,7 @@ pub async fn lookup(title: String) -> String {
         String::from(resp_title)
     };
 
-    let max_len = 495;
-    if extract.len() >= max_len {
-        format!("{}…", extract[..max_len].to_owned())
-    } else {
-        extract
-    }
+    truncate_response_for_twitch(extract)
 }
 
 pub async fn get_wiki(title: String) -> Result<Response, Error> {
