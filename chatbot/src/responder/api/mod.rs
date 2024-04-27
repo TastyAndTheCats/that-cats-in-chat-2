@@ -1,6 +1,7 @@
 mod epic_store;
 mod ollama;
 mod openweathermap;
+mod wikipedia;
 
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
@@ -14,6 +15,8 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
         return openweathermap::dispatch(responder, msg, command).await;
     } else if response_fn.starts_with("api::ollama") {
         return ollama::dispatch(responder, msg, command).await;
+    } else if response_fn.starts_with("api::wikipedia") {
+        return wikipedia::dispatch(responder, msg, command).await;
     } else {
         return "Unknown Function (api)".to_owned();
     }
