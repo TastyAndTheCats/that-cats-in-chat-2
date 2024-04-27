@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use reqwest::{Client, Error, Response};
 use utils::rand::random_number_1_to;
 
@@ -7,7 +9,11 @@ pub async fn random_sequence() -> Result<Response, Error> {
 }
 
 pub async fn get_sequence(sequence: i32) -> Result<Response, Error> {
-    let url = format!("https://oeis.org/search?fmt=json&q=id:A{}", sequence);
+    let url = format!(
+        "https://oeis.org/search?fmt=json&q=id:A{}",
+        min(sequence, 370000)
+    );
+    println!("{}", url);
     Client::new()
         .get(url)
         .header("User-Agent", "TheCatsInChat")

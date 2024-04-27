@@ -1,4 +1,5 @@
 mod epic_store;
+mod oeis;
 mod ollama;
 mod openweathermap;
 mod wikipedia;
@@ -12,6 +13,8 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
     tracing::info!("{} '{}'", response_fn, command);
     if response_fn.starts_with("api::epic_store") {
         return epic_store::dispatch(responder, msg, command).await;
+    } else if response_fn.starts_with("api::oeis") {
+        return oeis::dispatch(responder, msg, command).await;
     } else if response_fn.starts_with("api::openweathermap") {
         return openweathermap::dispatch(responder, msg, command).await;
     } else if response_fn.starts_with("api::ollama") {

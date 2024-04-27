@@ -155,7 +155,7 @@ VALUES
     (7, 'Advice', NULL, '!advice', NULL, 'core::facts::advice'),
     (7, 'Dad Joke', NULL, '!dadjoke', NULL, 'core::facts::dadjoke'),
     (7, 'Rickyism', NULL, '!ricky|!tpb', NULL, 'core::facts::rickyism'),
-    (7, 'Integer Sequences', NULL, '!oeis|!integers', NULL, 'core::facts::oeis'),
+    (4, 'Integer Sequences', NULL, '!oeis|!integers', NULL, 'api::oeis::lookup'),
     (8, 'Time', '!time', NULL, NULL, 'core::info::time'),
     (8, 'Weather', '!weather', NULL, NULL, 'api::openweathermap::weather'),
     (4, 'Chat with Blueberry', '!askb', NULL, NULL, 'api::ollama::blueberry'),

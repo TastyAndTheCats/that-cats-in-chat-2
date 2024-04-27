@@ -2,14 +2,14 @@ use std::env;
 
 use twitch_irc::message::PrivmsgMessage;
 
-use api_consumers::oeis::{get_sequence, random_sequence};
 use database::models::responders::TwitchResponder;
-use utils::{
-    file::load_lines_from_file, message::first_word_after_command_as_number,
-    rand::random_number_0_to, serde_json::unwrap_reqwest,
-};
+use utils::{file::load_lines_from_file, rand::random_number_0_to};
 
-pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command: &str) -> String {
+pub async fn dispatch(
+    responder: &TwitchResponder,
+    _msg: &PrivmsgMessage,
+    _command: &str,
+) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
     if response_fn.starts_with("core::facts::advice") {
         return cmd_advice();
@@ -25,8 +25,6 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
         return cmd_fortunecookies();
     } else if response_fn.starts_with("core::facts::numfact") {
         return cmd_numfact();
-    } else if response_fn.starts_with("core::facts::oeis") {
-        return cmd_oeis(msg, command).await;
     } else if response_fn.starts_with("core::facts::rickyism") {
         return cmd_rickyism();
     } else {
@@ -63,34 +61,6 @@ fn cmd_fortunecookies() -> String {
 
 fn cmd_numfact() -> String {
     format!("Number fact for {{sender}}: {}", x_facts("numfacts.txt"))
-}
-
-async fn cmd_oeis(msg: &PrivmsgMessage, command: &str) -> String {
-    let sequence_id = match first_word_after_command_as_number(msg, command) {
-        Ok(num) => num,
-        Err(_) => -1,
-    };
-
-    let sequence_data = if sequence_id < 1 {
-        random_sequence().await
-    } else {
-        get_sequence(sequence_id).await
-    };
-    let json_data = unwrap_reqwest(sequence_data).await;
-    let json_data = &json_data["results"][0].as_object().unwrap();
-
-    let sequence_id = json_data["number"].as_i64().unwrap_or(-1);
-    let sequence_name = json_data["name"].as_str().unwrap_or("Untitled");
-    let sequence_example = json_data["data"]
-        .as_str()
-        .unwrap()
-        .split(",")
-        .collect::<Vec<&str>>()
-        .join(", ");
-    format!(
-        "OEIS sequence for {{sender}}:  A{}: {} => {}",
-        sequence_id, sequence_name, sequence_example
-    )
 }
 
 fn cmd_rickyism() -> String {
