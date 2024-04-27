@@ -5,6 +5,7 @@ mod openweathermap;
 mod twitch;
 mod wikipedia;
 mod words;
+mod youtube;
 
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
@@ -26,6 +27,8 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
         return wikipedia::dispatch(responder, msg, command).await;
     } else if response_fn.starts_with("api::words") {
         return words::dispatch(responder, msg, command).await;
+    } else if response_fn.starts_with("api::youtube") {
+        return youtube::dispatch(responder, msg, command).await;
     } else {
         return "Unknown Function (api)".to_owned();
     }

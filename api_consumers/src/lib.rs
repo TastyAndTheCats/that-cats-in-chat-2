@@ -8,3 +8,4 @@ pub mod openweathermap; // Weather routes
 pub mod twitch; // Twitch API routes
 pub mod wikipedia; // Wikipedia
 pub mod words; // Dick Tionary and The Saurus
+pub mod youtube; // White videos

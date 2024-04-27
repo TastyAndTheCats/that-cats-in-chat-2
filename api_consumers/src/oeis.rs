@@ -1,6 +1,7 @@
 use std::cmp::min;
 
 use reqwest::{Client, Error, Response};
+
 use utils::rand::random_number_1_to;
 
 pub async fn random_sequence() -> Result<Response, Error> {
