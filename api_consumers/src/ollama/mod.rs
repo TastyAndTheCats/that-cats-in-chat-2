@@ -1,4 +1,4 @@
-use std::{env, future::Future, pin::Pin};
+use std::{env, future::Future};
 
 use ollama_rs::{
     error::OllamaError,

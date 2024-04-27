@@ -158,7 +158,7 @@ VALUES
     (7, 'Integer Sequences', NULL, '!oeis|!integers', NULL, 'core::facts::oeis'),
     (8, 'Time', '!time', NULL, NULL, 'core::info::time'),
     (8, 'Weather', '!weather', NULL, NULL, 'api::openweathermap::weather'),
-    (4, 'Chat with Blueberry', '!blue|!blueberry', NULL, NULL, 'api::ollama::blueberry'),
+    (4, 'Chat with Blueberry', '!askb', NULL, NULL, 'api::ollama::blueberry'),
     (4, 'Wikipedia Lookup (Long)', '!wikipedia', NULL, NULL, 'api::wikipedia::lookup_full'),
     (4, 'Wikipedia Lookup (Short)', '!wiki', NULL, NULL, 'api::wikipedia::lookup'),
     (8, 'Dictionary', '!dict|!dictionary|!define|!def', NULL, NULL, 'core::info::dictionary'),
