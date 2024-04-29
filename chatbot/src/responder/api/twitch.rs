@@ -17,17 +17,19 @@ pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command
 async fn cmd_set_game(msg: &PrivmsgMessage, command: &str) -> String {
     let title = rest_of_chat_message(msg, command).to_owned();
     tracing::info!("set_game: '{}'", title);
-    let resp = unwrap_reqwest(set_game(&msg.channel_id, title).await).await;
+    let resp = unwrap_reqwest(set_game(&msg.channel_id, &title).await).await;
 
-    String::new()
+    println!("{:?}", resp);
+
+    format!("Attempted to set game to {}", title)
 }
 
 async fn cmd_set_title(msg: &PrivmsgMessage, command: &str) -> String {
     let title = rest_of_chat_message(msg, command).to_owned();
     tracing::info!("set_title: '{}'", title);
-    let resp = unwrap_reqwest(set_title(&msg.channel_id, title).await).await;
+    let resp = unwrap_reqwest(set_title(&msg.channel_id, &title).await).await;
 
     println!("{:?}", resp);
 
-    String::new()
+    format!("Attempted to set title to {}", title)
 }

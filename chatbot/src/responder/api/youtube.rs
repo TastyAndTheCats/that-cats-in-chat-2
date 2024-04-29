@@ -3,7 +3,7 @@ use regex::Regex;
 use api_consumers::youtube;
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
-use utils::{message::rest_of_chat_message, serde_json::unwrap_reqwest};
+use utils::serde_json::unwrap_reqwest;
 
 pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, _command: &str) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();

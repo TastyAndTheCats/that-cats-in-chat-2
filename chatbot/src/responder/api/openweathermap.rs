@@ -146,8 +146,11 @@ fn degrees_to_cardinal_direction(degrees: f64) -> &'static str {
 
 fn convert_timestamp_to_timezone(timestamp: i64, timezone_offset: i64) -> DateTime<FixedOffset> {
     // Convert the naive datetime to the specified time zone
+    let dt = DateTime::from_timestamp(timestamp, 0).unwrap();
+    let naive_dt = NaiveDateTime::new(dt.date_naive(), dt.time());
+
     DateTime::from_naive_utc_and_offset(
-        NaiveDateTime::from_timestamp(timestamp, 0),
+        naive_dt,
         FixedOffset::east_opt(timezone_offset as i32).unwrap(),
     )
 }
