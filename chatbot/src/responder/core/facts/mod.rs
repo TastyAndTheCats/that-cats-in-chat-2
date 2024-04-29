@@ -12,59 +12,29 @@ pub async fn dispatch(
 ) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
     if response_fn.starts_with("core::facts::advice") {
-        return cmd_advice();
+        format!("Advice for {{sender}}: {}", x_facts("advice.txt"))
     } else if response_fn.starts_with("core::facts::catfact") {
-        return cmd_catfact();
+        format!("Cat fact for {{sender}}: {}", x_facts("catfacts.txt"))
     } else if response_fn.starts_with("core::facts::chucknorris") {
-        return cmd_chuckfact();
+        format!(
+            "Chuck Norris Fact for {{sender}}: {}",
+            x_facts("chuckfacts.txt")
+        )
     } else if response_fn.starts_with("core::facts::dadjoke") {
-        return cmd_dadjoke();
+        format!("Dad joke for {{sender}}: {}", x_facts("dadjokes.txt"))
     } else if response_fn.starts_with("core::facts::dogfact") {
-        return cmd_dogfact();
+        format!("Dog fact for {{sender}}: {}", x_facts("dogfacts.txt"))
+    } else if response_fn.starts_with("core::facts::fight") {
+        format!("Hey, buddy {{sender}}: {}", x_facts("fight.txt"))
     } else if response_fn.starts_with("core::facts::fortune_cookie") {
-        return cmd_fortunecookies();
+        format!("Fortune for {{sender}}: {}", x_facts("fortune_cookies.txt"))
     } else if response_fn.starts_with("core::facts::numfact") {
-        return cmd_numfact();
+        format!("Number fact for {{sender}}: {}", x_facts("numfacts.txt"))
     } else if response_fn.starts_with("core::facts::rickyism") {
-        return cmd_rickyism();
+        format!("Rickyism for {{sender}}: {}", x_facts("rickyisms.txt"))
     } else {
         return "Unknown Function (facts)".to_owned();
     }
-}
-
-fn cmd_advice() -> String {
-    format!("Advice for {{sender}}: {}", x_facts("advice.txt"))
-}
-
-fn cmd_catfact() -> String {
-    format!("Cat fact for {{sender}}: {}", x_facts("catfacts.txt"))
-}
-
-fn cmd_chuckfact() -> String {
-    format!(
-        "Chuck Norris Fact for {{sender}}: {}",
-        x_facts("chuckfacts.txt")
-    )
-}
-
-fn cmd_dadjoke() -> String {
-    format!("Dad joke for {{sender}}: {}", x_facts("dadjokes.txt"))
-}
-
-fn cmd_dogfact() -> String {
-    format!("Dog fact for {{sender}}: {}", x_facts("dogfacts.txt"))
-}
-
-fn cmd_fortunecookies() -> String {
-    format!("Fortune for {{sender}}: {}", x_facts("fortune_cookies.txt"))
-}
-
-fn cmd_numfact() -> String {
-    format!("Number fact for {{sender}}: {}", x_facts("numfacts.txt"))
-}
-
-fn cmd_rickyism() -> String {
-    format!("Rickyism for {{sender}}: {}", x_facts("rickyisms.txt"))
 }
 
 fn x_facts(filename: &str) -> String {

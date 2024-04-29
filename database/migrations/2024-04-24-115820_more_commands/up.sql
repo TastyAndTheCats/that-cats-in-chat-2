@@ -4,7 +4,10 @@ VALUES
     (113, 6, 'Full Weather', '!maxweather', NULL, NULL, 'api::openweathermap::weather_full'),
     (114, 4, 'Chat with Friday', '!askf', NULL, NULL, 'api::ollama::friday'),
     (115, 4, 'Chat with Zoey', '!askz', NULL, NULL, 'api::ollama::zoey'),
-    (116, 4, 'Chat with A Random Cat', '!catchat', NULL, NULL, 'api::ollama::chat');
+    (116, 4, 'Chat with A Random Cat', '!catchat', NULL, NULL, 'api::ollama::chat'),
+    (117, 6, 'Start a Fight', NULL, '!fight', NULL, 'core::facts::fight'),
+    (118, 6, 'Roll a Die (1d20 default)', '!roll', NULL, NULL, 'core::maths::roll_die'),
+    (119, 6, 'Oranges', '!orange|!oranges', NULL, NULL, 'core::emoji::fruit::oranges');
 
 INSERT INTO
     user_selected_responders (user_id, responder_id, permissions)
@@ -12,7 +15,10 @@ VALUES
     (167591621, 113, 1),
     (167591621, 114, 1),
     (167591621, 115, 1),
-    (167591621, 116, 1);
+    (167591621, 116, 1),
+    (167591621, 117, 1),
+    (167591621, 118, 1),
+    (167591621, 119, 1);
 
 -- NOTES:
 -- PERMISSIONS
