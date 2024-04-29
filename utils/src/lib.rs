@@ -2,7 +2,13 @@
 //! Most of these modules are representative of a specific third-party crate (rand, url, etc.)
 //! Functions in the lib file are data conversions
 
+pub mod file;
+pub mod message;
+pub mod metric;
+pub mod num;
 pub mod rand;
+pub mod serde_json;
+pub mod twitch;
 pub mod url;
 
 /// Parses a String as an i32

@@ -8,28 +8,28 @@ use actix_web::{
 };
 use api_consumers::twitch::auth;
 use database::login;
-use std::env;
+use types::{
+    auth::{TwitchLoginFailResponse, TwitchLoginSuccessResponse},
+    get::app,
+    twitch::App,
+};
 
 /// Hit this route to initiate a login request
 #[get("/login")]
 async fn twitch_login_initiate() -> impl Responder {
     let state = auth::state();
-    let scope = "channel:bot";
-    login::user::initiate_login(&state, &scope, true, false);
+    let scope = "channel:bot moderator:manage:shoutouts channel:manage:broadcast";
+    let app: App = app(None, None, None, None);
+    login::user::initiate_login(&state, &scope, true, false).unwrap();
     redirect(
         "/login",
-        auth::credentials_url(
-            &state,
-            &scope,
-            &env::var("TWITCH_REDIRECT_URL")
-                .expect("Missing TWITCH_REDIRECT_URL environment variable."),
-        ),
+        auth::credentials_url(&state, &scope, &app.login_redirect_url),
     )
 }
 
 /// Twitch will redirect to here after the process complete, success or fail
 #[get("/login_accepted/")] // The ending / is required for Twitch reasons
-async fn twitch_login_accepted(query: Query<auth::TwitchLoginSuccessResponse>) -> impl Responder {
+async fn twitch_login_accepted(query: Query<TwitchLoginSuccessResponse>) -> impl Responder {
     let [user_id, user_login] = validate_twitch_login(&query).await;
 
     let user_id = user_id.expect("Login was invalid").parse::<i32>().unwrap();
@@ -37,7 +37,8 @@ async fn twitch_login_accepted(query: Query<auth::TwitchLoginSuccessResponse>) -
         &query.state,
         &user_id,
         user_login.expect("Login was invalid").as_str(),
-    );
+    )
+    .unwrap();
 
     redirect("/login_accepted", format!("/dashboard/{}", user_id))
 }
@@ -45,8 +46,8 @@ async fn twitch_login_accepted(query: Query<auth::TwitchLoginSuccessResponse>) -
 // This might overright the above route on a fail? I would like that, but I have doubts
 #[get("/login_accepted/")] // The ending / is required for Twitch reasons
                            // TODO: test this
-async fn twitch_login_rejected(query: Query<auth::TwitchLoginFailResponse>) -> impl Responder {
-    login::user::twitch_login_failed(&query.state, &query.error, &query.error_description);
+async fn twitch_login_rejected(query: Query<TwitchLoginFailResponse>) -> impl Responder {
+    login::user::twitch_login_failed(&query.state, &query.error, &query.error_description).unwrap();
     HttpResponse::Ok().body(format!(
         "Login accepted. error:{} error_description:{} state:{}",
         query.error, query.error_description, query.state

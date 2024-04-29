@@ -12,20 +12,20 @@
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use dotenvy::dotenv;
-use std::env;
 
+use types::get::database;
+
+pub mod bot;
 pub mod channel;
 pub mod login;
-mod models;
+pub mod models;
+pub mod responder;
+
 mod schema;
 
 /// Creates a new connection to the database
 // TODO: I *think* these connections will drop when the function using them is over, but I should test that
 fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
-    PgConnection::establish(&database_url)
-        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+    let db = database(None);
+    PgConnection::establish(&db.url).unwrap_or_else(|_| panic!("Error connecting to {}", db.url))
 }

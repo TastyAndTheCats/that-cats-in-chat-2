@@ -1,9 +1,13 @@
 //! Models for using the Diesel schema as objects
 //! The objects are sort of self documening as to where they're from and what they're representing, so the comments here are minimal
+//!
 
+use crate::schema;
 use diesel::prelude::*;
 
-// #[derive(Queryable, Selectable)]
+pub mod responders;
+
+// #[derive(Queryable, Selectable, Debug)]
 // #[diesel(table_name = crate::schema::twitch_channel)]
 // #[diesel(check_for_backend(diesel::pg::Pg))]
 // pub struct TwitchChannel {
@@ -14,8 +18,8 @@ use diesel::prelude::*;
 //     pub delay: i32,
 // }
 
-#[derive(Queryable, Selectable, Insertable)]
-#[diesel(table_name = crate::schema::twitch_login_process)]
+#[derive(Queryable, Selectable, Insertable, Debug)]
+#[diesel(table_name = schema::twitch_login_process)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct LoginProcess {
     pub state: String,
@@ -30,17 +34,18 @@ pub struct LoginProcess {
     pub token_type: Option<String>,
 }
 
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = crate::schema::twitch_user)]
+#[derive(Queryable, Selectable, Debug)]
+#[diesel(table_name = schema::twitch_user)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchUser {
     pub id: i32,
     pub login: String,
     pub login_state: Option<String>,
+    pub messages_processed: i32,
 }
 
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = crate::schema::twitch_bot)]
+#[derive(Queryable, Selectable, Debug)]
+#[diesel(table_name = schema::twitch_bot)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchBot {
     pub state: String,
