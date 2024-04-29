@@ -5,6 +5,7 @@ pub mod epic; // Epic Game Store API routes
 pub mod oeis; // OEIS routes
 pub mod ollama; // LLM routes
 pub mod openweathermap; // Weather routes
+pub mod time;
 pub mod twitch; // Twitch API routes
 pub mod wikipedia; // Wikipedia
 pub mod words; // Dick Tionary and The Saurus

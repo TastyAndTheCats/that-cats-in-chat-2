@@ -18,7 +18,7 @@ pub async fn get_weather_at(location: &str) -> Result<Response, Error> {
         .await
 }
 
-async fn get_lat_lng_from_location(location: &str) -> (String, String) {
+pub async fn get_lat_lng_from_location(location: &str) -> (String, String) {
     let geocoding = unwrap_reqwest(geocoding(location).await).await;
     let loc = &geocoding[0];
     (

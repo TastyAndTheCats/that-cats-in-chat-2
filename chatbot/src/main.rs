@@ -39,17 +39,17 @@ fn start_app() {
 
 /// Things needed for the bot to work
 async fn start_bot() -> tokio::task::JoinHandle<()> {
-    let (incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
+    let (mut incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
     let responders = bot_initialization().await;
     let channel = channel(None, None);
     client.join(channel.login.to_string()).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
     tracing::info!("{:?}", client.get_channel_status(channel.login).await);
 
-    list_responders_in_console(&responders);
+    print_responders(&responders);
     say_hello(client.clone(), &responders).await;
 
     tokio::spawn(async move {
-        handler::dispatch(client.clone(), incoming_messages, responders.clone()).await
+        handler::dispatch(client.clone(), &mut incoming_messages, responders.clone()).await
     })
 }
 
@@ -79,7 +79,7 @@ async fn say_hello(client: TwitchClient, responders: &Vec<TwitchResponder>) {
 }
 
 /// TODO: remove this, it's nice to be able to see what's loaded though
-fn list_responders_in_console(responders: &Vec<TwitchResponder>) {
+fn print_responders(responders: &Vec<TwitchResponder>) {
     for r in responders {
         tracing::debug!("r: {}", r);
     }

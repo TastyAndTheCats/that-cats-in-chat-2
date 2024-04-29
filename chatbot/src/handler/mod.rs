@@ -13,7 +13,7 @@ use crate::local_types::TwitchClient;
 /// Decides what sort of message is being received by the chatbot and what to do about it
 pub async fn dispatch(
     client: TwitchClient,
-    mut incoming_messages: UnboundedReceiver<ServerMessage>,
+    incoming_messages: &mut UnboundedReceiver<ServerMessage>,
     responders: Vec<TwitchResponder>,
 ) {
     while let Some(message) = incoming_messages.recv().await {
