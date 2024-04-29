@@ -16,6 +16,7 @@ mod auth;
 mod handler;
 mod local_types;
 mod responder;
+mod timed_messages;
 
 use database::models::responders::TwitchResponder;
 use local_types::TwitchClient;
@@ -31,7 +32,9 @@ pub async fn main() {
 
 /// Things needed for the app to work
 fn start_app() {
-    tracing_subscriber::fmt::init(); // Logging setup
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init(); // Logging setup
     dotenv().expect(".env file not found"); // load environment variables from .env file
 }
 
@@ -39,14 +42,19 @@ fn start_app() {
 async fn start_bot() -> tokio::task::JoinHandle<()> {
     let (incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
     let responders = bot_initialization().await;
+    let channel = channel(None, None);
+    client.join(channel.login.to_string()).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
+    tracing::info!("{:?}", client.get_channel_status(channel.login).await);
 
-    client.join(channel(None, None).login).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
-    list_responders_in_console(&responders);
-    say_hello(&client, &responders).await;
+    print_responders(&responders);
+    say_hello(client.clone(), &responders).await;
 
-    tokio::spawn(
-        async move { handler::dispatch(&client.clone(), incoming_messages, &responders).await },
-    )
+    let timed_message_client = client.clone();
+    let timed_message_responders = responders.clone();
+    tokio::spawn(async move {
+        timed_messages::scheduler(timed_message_client, timed_message_responders).await
+    });
+    tokio::spawn(async move { handler::dispatch(client, incoming_messages, responders).await })
 }
 
 /// Things that need to happen before the bot starts listening to the channel
@@ -56,12 +64,12 @@ async fn bot_initialization() -> Vec<TwitchResponder> {
 }
 
 /// Hard-coded pre-init greeting
-async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
+async fn say_hello(client: TwitchClient, responders: &Vec<TwitchResponder>) {
     for r in responders {
         match r.title.as_str() {
             "Say Hello" => {
                 responder::send(
-                    client,
+                    client.clone(),
                     None,
                     r.response.as_ref().unwrap().to_string(),
                     Some(r),
@@ -75,8 +83,8 @@ async fn say_hello(client: &TwitchClient, responders: &Vec<TwitchResponder>) {
 }
 
 /// TODO: remove this, it's nice to be able to see what's loaded though
-fn list_responders_in_console(responders: &Vec<TwitchResponder>) {
+fn print_responders(responders: &Vec<TwitchResponder>) {
     for r in responders {
-        println!("{}", r);
+        tracing::debug!("r: {}", r);
     }
 }

@@ -13,11 +13,7 @@ INSERT INTO
     twitch_bot_responder_groups (id, title, parent)
 VALUES
     (1, 'Core Functions', NULL),
-    (2, 'Game-Related', NULL),
-    (3, 'Third-Party', NULL),
-    (4, 'API Consumers', 3),
-    (5, 'User-Defined', 3),
-    (6, 'Epic Games Store', 4),
+    
     (7, 'Facts', 1),
     (8, 'Information', 1),
     (9, 'Twitch', 4),
@@ -27,12 +23,16 @@ VALUES
     (13, 'Niceties', 1),
 
     (14, 'Emoji', 1),
+
+    (2, 'Game-Related', NULL),
+    (29, 'Colony-Builders', 2),
+
+    (3, 'Third-Party', NULL),
+    (5, 'User-Defined', 3),
+    (4, 'API Consumers', 3),
+    (6, 'Epic Games Store', 4),
     
     (15, 'Food', 14),
-    (16, 'Personal', 14),
-    (17, 'Shapes', 14),
-    (18, 'Events', 14),
-    
     (19, 'Baked Goods', 15),
     (20, 'Dairy', 15),
     (21, 'Desserts', 15),
@@ -43,7 +43,10 @@ VALUES
     (26, 'Meats', 15),
     (27, 'Utensils', 15),
     (28, 'Vegetables', 15),
-    (29, 'Colony-Builders', 2);
+
+    (16, 'Personal', 14),
+    (17, 'Shapes', 14),
+    (18, 'Events', 14);
 
 -- Definitions of responders
 CREATE TABLE
@@ -143,21 +146,23 @@ VALUES
 INSERT INTO
     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
 VALUES
-    (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
-    (6, 'Epic Store Free Games', '!epic|!epicfree', 'epic games store', 'epic?|epic', 'api::epic_store::free_games'),
+    -- (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
+    (6, 'Epic Store Free Games', NULL, 'epic', NULL, 'api::epic_store::free_games'),
     (7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
     (7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
-    (7, 'Number Facts', NULL, '!numfact|!numberfact', NULL, 'core::facts::dognumfactfact'),
+    (7, 'Number Facts', NULL, '!numfact|!numberfact', NULL, 'core::facts::numfact'),
     (7, 'Chuck Norris Facts', NULL, '!chuckfact|!norrisfact|!cnfact|!chucknorris', NULL, 'core::facts::chucknorris'),
     (7, 'Advice', NULL, '!advice', NULL, 'core::facts::advice'),
     (7, 'Dad Joke', NULL, '!dadjoke', NULL, 'core::facts::dadjoke'),
+    (7, 'Rickyism', NULL, '!ricky|!tpb', NULL, 'core::facts::rickyism'),
+    (4, 'Integer Sequences', NULL, '!oeis|!integers', NULL, 'api::oeis::lookup'),
     (8, 'Time', '!time', NULL, NULL, 'core::info::time'),
-    (8, 'Weather', '!weather', NULL, NULL, 'core::info::weather'),
-    (4, 'Wikia', '!wikia', NULL, NULL, 'api::wikia::lookup'),
-    (4, 'Wikipedia (Long)', '!wikipedia', NULL, NULL, 'api::wikipedia::lookup_full'),
-    (4, 'Wikipedia (Short)', '!wiki', NULL, NULL, 'api::wikipedia::lookup'),
-    (8, 'Dictionary', '!dict|!dictionary|!define|!def', NULL, NULL, 'core::info::dictionary'),
-    (8, 'Thesaurus', '!thesaurus|!wordslike', NULL, NULL, 'core::info::thesaurus'),
+    (8, 'Weather', '!weather', NULL, NULL, 'api::openweathermap::weather'),
+    (4, 'Chat with Blueberry', '!askb', NULL, NULL, 'api::ollama::blueberry'),
+    (4, 'Wikipedia Lookup (Long)', '!wikipedia', NULL, NULL, 'api::wikipedia::lookup_full'),
+    (4, 'Wikipedia Lookup (Short)', '!wiki', NULL, NULL, 'api::wikipedia::lookup'),
+    (8, 'Dictionary', '!dict|!dictionary|!define|!def', NULL, NULL, 'api::words::dictionary'),
+    (8, 'Thesaurus', '!thesaurus|!wordslike', NULL, NULL, 'api::words::thesaurus'),
     (9, 'Set Game', '!setgame', NULL, NULL, 'core::twitch::set_game'),
     (9, 'Set Title', '!settitle', NULL, NULL, 'core::twitch::set_title'),
     (10, 'Youtube Video Info', NULL, 'youtube.com|youtu.be', NULL, 'core::youtube::get_video_info'),
@@ -167,11 +172,11 @@ VALUES
     (12, 'Coin Flip', NULL, '!coinflip|!flipcoin|!cointoss|!tosscoin', NULL, 'core::maths::coin_toss'),
     (13, 'Shoutout', NULL, '!gowatch|!gofollow|!so', NULL, 'core::niceties::shoutout');
 
--- response and response_fn
-INSERT INTO
-    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
-VALUES
-    (1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
+-- -- response and response_fn
+-- INSERT INTO
+--     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
+-- VALUES
+--     (1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
 
 -- just response_fn and only starts_with
 INSERT INTO
@@ -229,10 +234,10 @@ VALUES
     (22, 'Soft Drink', '!softdrink|!pop|!soda|!coke', 'core::emoji::drinks::soft_drink'),
     (22, 'Juice Box', '!juicebox|!juice|!juiceboxes', 'core::emoji::drinks::juice_box'),
     (22, 'Yerba Mate', '!yerbamate|!yerba', 'core::emoji::drinks::yerba_mate'),
-    (23, 'Fortune Cookie', '!fortunecookie|!fortune', 'core::emoji::fortune_cookie'),
-    (24, 'Grapes', '!grape!grapes', 'core::emoji::fruit::grapes'),
-    (24, 'Melons', '!melon!melons', 'core::emoji::fruit::melons'),
-    (24, 'Watermelons', '!watermelon!watermelons', 'core::emoji::fruit::watermelons'),
+    (7, 'Fortune Cookie', '!fortunecookie|!fortune', 'core::facts::fortune_cookie'),
+    (24, 'Grapes', '!grape|!grapes', 'core::emoji::fruit::grapes'),
+    (24, 'Melons', '!melon|!melons', 'core::emoji::fruit::melons'),
+    (24, 'Watermelons', '!watermelon|!watermelons', 'core::emoji::fruit::watermelons'),
     (24, 'Tangerines', '!tangerine|!tangerines', 'core::emoji::fruit::tangerines'),
     (24, 'Lemons', '!lemon|!lemons', 'core::emoji::fruit::lemons'),
     (24, 'Bananas', '!banana|!bananas', 'core::emoji::fruit::bananas'),
@@ -316,9 +321,9 @@ CREATE TABLE
         responder_profile INTEGER REFERENCES twitch_bot_auto_response_profiles (id) NOT NULL DEFAULT 1,
         active BOOLEAN NOT NULL DEFAULT TRUE,
         last_instance INTEGER NOT NULL DEFAULT 0, -- UTC timestamp
-        permissions INTEGER REFERENCES twitch_bot_responder_permissions (id) NOT NULL DEFAULT 2,
-        cooldown INTEGER NOT NULL DEFAULT 0,
-        per_user_cooldown INTEGER NOT NULL DEFAULT 10,
+        permissions INTEGER REFERENCES twitch_bot_responder_permissions (id) NOT NULL DEFAULT 3,
+        cooldown INTEGER NOT NULL DEFAULT 10,
+        per_user_cooldown INTEGER NOT NULL DEFAULT 60,
         include_specific_users TEXT DEFAULT NULL,
         exclude_specific_users TEXT DEFAULT NULL,
         CONSTRAINT include_or_exclude_not_both CHECK (
@@ -331,11 +336,11 @@ CREATE TABLE
                 exclude_specific_users IS NULL
             )
         ),
+        count INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (user_id, responder_id)
     );
 
 -- Adds all of the possible responses to TastyAndTheCats' bot
--- NOTE: you have to set the 1..X here manually it's not a count
 DO $$
 DECLARE
     row_count INTEGER;
@@ -347,7 +352,7 @@ BEGIN
     -- Iterate over each row in the responders table
     WHILE counter <= row_count LOOP
         -- Insert a record into user_selected_responders for each responder for me
-        EXECUTE format('INSERT INTO user_selected_responders (user_id, responder_id) VALUES (167591621, %s)', counter);
+        EXECUTE format('INSERT INTO user_selected_responders (user_id, responder_id, permissions) VALUES (167591621, %s, 4)', counter);
         counter := counter + 1;
     END LOOP;
 END;

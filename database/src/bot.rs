@@ -1,5 +1,5 @@
 use diesel::{prelude::*, result};
-use types::get::chatbot;
+use types::get::channel;
 
 use crate::{
     establish_connection,
@@ -10,19 +10,10 @@ use crate::{
     },
 };
 
-// pub async fn get_responders_for_user(user_id: i32) -> Result<Vec<TwitchResponder>, result::Error> {
-//     get_combined_responders_for_user(user_id).unwrap();
-//     twitch_bot_responders::table
-//         .inner_join(user_selected_responders::table)
-//         .filter(user_selected_responders::user_id.eq(user_id))
-//         .select(TwitchResponder::as_select())
-//         .load(&mut establish_connection())
-// }
-
 pub fn get_access_token(id: Option<i32>) -> Result<LoginProcess, result::Error> {
     twitch_user::table
         .inner_join(twitch_login_process::table)
-        .filter(twitch_user::id.eq(id.unwrap_or(chatbot(None, None).id)))
+        .filter(twitch_user::id.eq(id.unwrap_or(channel(None, None).id)))
         .select(LoginProcess::as_select())
         .get_result(&mut establish_connection())
 }
@@ -46,6 +37,8 @@ pub fn get_combined_responders_for_user(
             // user_selected_responders::per_user_cooldown, // TODO: I need to keep track of users for this and I don't yet
             user_selected_responders::include_specific_users,
             user_selected_responders::exclude_specific_users,
+            user_selected_responders::last_automatic_instance,
+            user_selected_responders::message_count_at_last_automatic,
             twitch_bot_auto_response_profiles::interval,
             twitch_bot_auto_response_profiles::distance,
             twitch_bot_responder_permissions::requires_broadcaster,
@@ -59,6 +52,8 @@ pub fn get_combined_responders_for_user(
             twitch_bot_responders::ends_with,
             twitch_bot_responders::response,
             twitch_bot_responders::response_fn,
+            twitch_bot_responders::automatable,
+            twitch_bot_responders::show_command_as,
         ))
         .get_results(&mut establish_connection())
 }

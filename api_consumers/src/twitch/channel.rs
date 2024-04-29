@@ -1,22 +1,55 @@
 //! Calls to  https://api.twitch.tv/helix/channels
 
-use reqwest::{Client, Error, Response};
+use reqwest::{Error, Response};
+use utils::serde_json::unwrap_reqwest;
 
-use utils::twitch::client_and_access_token;
+use crate::twitch;
 
 pub async fn lookup_channel_from_id(channel_id: &str) -> Result<Response, Error> {
-    let (client_id, access_token) = client_and_access_token(None);
-
-    Client::new()
-        .get(format!(
+    twitch::get(
+        &format!(
             " https://api.twitch.tv/helix/channels?broadcaster_id={}",
             channel_id
-        ))
-        .header(
-            "Authorization",
-            format!("Bearer {}", access_token.expect("Invalid client_id")),
+        ),
+        None,
+    )
+    .await
+}
+
+pub async fn set_game(channel_id: &str, title: &str) -> Result<Response, Error> {
+    let game_info = unwrap_reqwest(
+        twitch::get(
+            &format!("https://api.twitch.tv/helix/games?name={}", title),
+            None,
         )
-        .header("Client-Id", client_id)
-        .send()
-        .await
+        .await,
+    )
+    .await;
+
+    let game_id = game_info.as_object().unwrap()["data"][0]["id"]
+        .as_str()
+        .unwrap_or("")
+        .to_owned();
+
+    twitch::patch(
+        &format!(
+            " https://api.twitch.tv/helix/channels?broadcaster_id={}",
+            channel_id
+        ),
+        Some(vec![("game_id", game_id)]),
+        Some(channel_id.parse::<i32>().unwrap_or(0)),
+    )
+    .await
+}
+
+pub async fn set_title(channel_id: &str, title: &str) -> Result<Response, Error> {
+    twitch::patch(
+        &format!(
+            " https://api.twitch.tv/helix/channels?broadcaster_id={}",
+            channel_id
+        ),
+        Some(vec![("title", title.to_owned())]),
+        Some(channel_id.parse::<i32>().unwrap_or(0)),
+    )
+    .await
 }

@@ -1,147 +1,170 @@
 //! Handles responses to normal chat messages
+use database::channel::increment_messages_counted;
+use regex::Regex;
+use std::env;
 
-use crate::local_types::TwitchClient;
+use crate::local_types::{faked_privmsgmessage, TwitchClient};
 use crate::responder;
+use api_consumers::twitch::users::lookup_user_from_login;
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
-use types::get;
 use utils::message::rest_of_chat_message;
+use utils::serde_json::unwrap_reqwest;
 
 mod automoderator;
-use crate::responder::permissions::{self, Permissions};
 
 /// Dispatches all of the chatbot responses. This is the main brain of the chatbot's response engine.
-pub async fn dispatch(
-    client: &TwitchClient,
-    msg: PrivmsgMessage,
-    responders: &Vec<TwitchResponder>,
-) {
+pub async fn dispatch(client: TwitchClient, msg: PrivmsgMessage, responders: Vec<TwitchResponder>) {
     if automoderator::check(&msg.message_text) {
+        let _ = increment_messages_counted(msg.channel_id.parse::<i32>().unwrap_or(0));
+        let m = msg.message_text.to_lowercase();
         for r in responders {
-            if r.starts_with.is_some() {
-                let options = r.starts_with.as_ref().unwrap().split("|");
-                let m = msg.message_text.to_lowercase();
-                for opt in options {
-                    if m.starts_with(opt) {
-                        let permission = permissions::check(&msg);
-                        match permission {
-                            Permissions::ALL => {
-                                send_response_or_run_response_fn(client, &r, &msg, opt).await;
-                            }
-                            _ => {
-                                println!(
-                                    "I haven't got permissions setup for that: {:?}",
-                                    permission
-                                )
-                            }
-                        }
-                    }
-                }
+            if let Some(starts_with) = &r.starts_with {
+                dispatch_with_regex(
+                    client.clone(),
+                    msg.clone(),
+                    &r,
+                    m.to_owned(),
+                    starts_with,
+                    (r"^", r"\b.*?$"),
+                );
             }
-
-            if r.contains.is_some() {
-                let options = r.contains.as_ref().unwrap().split("|");
-                let m = msg.message_text.to_lowercase();
-                for opt in options {
-                    if m.contains(opt) {
-                        send_response_or_run_response_fn(client, &r, &msg, opt).await;
-                    }
-                }
+            if let Some(contains) = &r.contains {
+                dispatch_with_regex(
+                    client.clone(),
+                    msg.clone(),
+                    &r,
+                    m.to_owned(),
+                    contains,
+                    (r"^.*\W?", r"\b.*?$"),
+                );
             }
-
-            if r.ends_with.is_some() {
-                let options = r.ends_with.as_ref().unwrap().split("|");
-                let m = msg.message_text.to_lowercase();
-                for opt in options {
-                    if m.ends_with(opt) {
-                        send_response_or_run_response_fn(client, &r, &msg, opt).await;
-                    }
-                }
+            if let Some(ends_with) = &r.ends_with {
+                dispatch_with_regex(
+                    client.clone(),
+                    msg.clone(),
+                    &r,
+                    m.to_owned(),
+                    ends_with,
+                    (r"^.*\W?", r"$"),
+                );
             }
         }
     }
 }
 
-async fn send_response_or_run_response_fn(
-    client: &TwitchClient,
+fn dispatch_with_regex(
+    client: TwitchClient,
+    msg: PrivmsgMessage,
     r: &TwitchResponder,
-    msg: &PrivmsgMessage,
-    command: &str,
+    m: String,
+    parts_list: &String,
+    re_template: (&str, &str),
 ) {
+    let string_options: Vec<&str> = parts_list.split("|").collect();
+    let regex_options: Vec<(String, Regex)> = string_options
+        .into_iter()
+        .map(|cmd| {
+            (
+                cmd.to_owned(),
+                Regex::new(&format!(r"{}{}{}", re_template.0, cmd, re_template.1)).unwrap(),
+            )
+        })
+        .rev()
+        .collect();
+
+    for (opt, re) in regex_options {
+        let re = re.to_owned(); // Convert opt to owned String
+        let r = r.clone();
+        if re.is_match(&m) {
+            tokio::spawn(async move {
+                send_response_or_run_response_fn(client, r, Some(msg), Some(&opt)).await;
+            });
+            break;
+        }
+    }
+}
+
+pub async fn send_response_or_run_response_fn(
+    client: TwitchClient,
+    r: TwitchResponder,
+    msg: Option<PrivmsgMessage>,
+    command: Option<&str>,
+) {
+    let msg = msg.unwrap_or(faked_privmsgmessage(
+        &r.clone().show_command_as.unwrap_or(String::new()),
+    ));
+    let command = command.unwrap_or("");
     responder::send(
         client,
-        Some(msg),
+        Some(&msg),
         match r.response_fn.is_some() {
-            true => insert_data_in_response(
-                responder::function_message(r, msg, command).await,
-                msg,
-                command,
-            ),
-            false => format_response(&r.response.as_ref().unwrap().to_owned(), msg, command),
+            true => {
+                insert_data_in_response(
+                    responder::function_message(r.clone(), msg.clone(), command).await,
+                    msg.clone(),
+                    command,
+                )
+                .await
+            }
+            false => {
+                format_response(
+                    &r.response.as_ref().unwrap().to_owned(),
+                    msg.clone(),
+                    command,
+                )
+                .await
+            }
         },
-        Some(r),
+        Some(&r),
     )
     .await;
 }
 
 /// Formats the response message for Twitch chat
-fn format_response(r: &String, msg: &PrivmsgMessage, command: &str) -> String {
-    insert_data_in_response(r.to_owned(), msg, command)
+async fn format_response(r: &String, msg: PrivmsgMessage, command: &str) -> String {
+    insert_data_in_response(r.to_owned(), msg, command).await
 }
 
 /// Rwplaces text variables (no format yet) with the real data where possible
-fn insert_data_in_response(response: String, msg: &PrivmsgMessage, command: &str) -> String {
-    let mut response = response;
-    // Replace Sender Name
-    response = response.replace("{sender}", &msg.sender.name);
-    // Replace channel_name
-    let channel = get::channel(
-        Some(msg.channel_id.parse::<i32>().unwrap()),
-        Some(msg.channel_login.to_string()),
-    );
-    response = response.replace("{channel_name}", &channel.name.unwrap());
-    // replace {_1}
-    let rest_of_message = rest_of_chat_message(msg, command);
-    response = response.replace("{_1}", &rest_of_message);
-    // Signify the end
-    response
+async fn insert_data_in_response(response: String, msg: PrivmsgMessage, command: &str) -> String {
+    let mut response = replace_sender_name(response, msg.clone());
+    response = replace_channel_name(response, msg.clone()).await;
+    replace_1_(response, msg.clone(), command)
 }
 
-// PrivmsgMessage {
-//     channel_login: "tastyandthecats".to_owned(),
-//     channel_id: "167591621".to_owned(),
-//     message_text: "!dwarfme".to_owned(),
-//     is_action: false,
-//     sender: TwitchUserBasics { id: "167591621", login: "tastyandthecats", name: "TastyAndTheCats" },
-//     badge_info: [Badge { name: "subscriber", version: "44" }],
-//     badges: [Badge { name: "broadcaster", version: "1" }, Badge { name: "subscriber", version: "3030" }, Badge { name: "rplace-2023", version: "1" }],
-//     bits: None,
-//     name_color: Some(RGBColor { r: 255, g: 164, b: 0 }),
-//     emotes: [].to_vec(),
-//     message_id: "9937b03d-a1dc-4b70-a2cc-09611487acf8".to_owned(),
-//     server_timestamp: "2024-04-20T19:06:09.152Z".to_owned(),
-//     source: IRCMessage {
-// //         tags: IRCTags({
-//                 "color": Some("#FFA400"),
-//                 "user-type": Some(""),
-//                 "id": Some("9937b03d-a1dc-4b70-a2cc-09611487acf8"),
-//                 "client-nonce": Some("1a443422ce2c4b74cbaf0653272fb962"),
-//                 "returning-chatter": Some("0"),
-//                 "badge-info": Some("subscriber/44"),
-//                 "emotes": Some(""),
-//                 "tmi-sent-ts": Some("1713639969152"),
-//                 "badges": Some("broadcaster/1,subscriber/3030,rplace-2023/1"),
-//                 "subscriber": Some("1"),
-//                 "flags": Some(""),
-//                 "display-name": Some("TastyAndTheCats"),
-//                 "turbo": Some("0"),
-//                 "first-msg": Some("0"),
-//                 "user-id": Some("167591621"),
-//                 "room-id": Some("167591621"),
-//                 "mod": Some("0")
-//             }),
-//         prefix: Some(Full { nick: "tastyandthecats", user: Some("tastyandthecats"), host: Some("tastyandthecats.tmi.twitch.tv") }),
-//         command: "PRIVMSG",
-//         params: ["#tastyandthecats", "!dwarfme"]
-//     }
-// }
+/// Replace {sender} with message sender display name
+fn replace_sender_name(response: String, msg: PrivmsgMessage) -> String {
+    if response.contains("{sender}") {
+        response.replace("{sender}", &msg.sender.name)
+    } else {
+        response
+    }
+}
+
+/// Replace {channel_name} with channel display name
+async fn replace_channel_name(response: String, msg: PrivmsgMessage) -> String {
+    if response.contains("{channel_name}") {
+        let user = unwrap_reqwest(lookup_user_from_login(&msg.channel_login).await).await;
+        tracing::debug!("replace_channel_name: {}", user);
+        response.replace(
+            "{channel_name}",
+            user["data"][0]["display_name"]
+                .as_str()
+                .unwrap_or(&env::var("TWITCH_CHANNEL").expect("TWITCH_CHANNEL is missing")),
+        )
+    } else {
+        response
+    }
+}
+
+/// replace {_1}
+/// NOTE: probably don't do this? it's for old commands that I don't want to update for whatever reason
+fn replace_1_(response: String, msg: PrivmsgMessage, command: &str) -> String {
+    if response.contains("{_1}") {
+        let rest_of_message = rest_of_chat_message(&msg, command);
+        response.replace("{_1}", &rest_of_message)
+    } else {
+        response
+    }
+}

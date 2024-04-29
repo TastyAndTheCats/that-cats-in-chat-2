@@ -58,6 +58,9 @@ diesel::table! {
         response -> Nullable<Varchar>,
         #[max_length = 500]
         response_fn -> Nullable<Varchar>,
+        automatable -> Bool,
+        #[max_length = 20]
+        show_command_as -> Nullable<Varchar>,
     }
 }
 
@@ -81,6 +84,7 @@ diesel::table! {
         id -> Int4,
         login -> Text,
         login_state -> Nullable<Text>,
+        messages_processed -> Int4,
     }
 }
 
@@ -104,6 +108,9 @@ diesel::table! {
         per_user_cooldown -> Int4,
         include_specific_users -> Nullable<Text>,
         exclude_specific_users -> Nullable<Text>,
+        count -> Int4,
+        last_automatic_instance -> Int4,
+        message_count_at_last_automatic -> Int4,
     }
 }
 

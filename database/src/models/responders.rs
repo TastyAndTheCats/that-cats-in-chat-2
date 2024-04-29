@@ -7,10 +7,10 @@ use diesel::prelude::*;
 use crate::schema;
 
 /// The functional unit used when deciding/responding to messages
-#[derive(Debug, Queryable)]
+#[derive(Debug, Queryable, Clone)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TwitchResponder {
-    pub responder_id: i32,
+    pub id: i32,
     pub responder_profile: i32,
     pub last_instance: i32,
     pub permissions: i32,
@@ -18,6 +18,8 @@ pub struct TwitchResponder {
     // pub per_user_cooldown, // TODO: I need to keep track of users for this and I don't yet
     pub include_specific_users: Option<String>,
     pub exclude_specific_users: Option<String>,
+    pub last_automatic_instance: i32,
+    pub message_count_at_last_automatic: i32,
     pub interval: Option<i32>,
     pub distance: Option<i32>,
     pub requires_broadcaster: bool,
@@ -31,18 +33,22 @@ pub struct TwitchResponder {
     pub ends_with: Option<String>,
     pub response: Option<String>,
     pub response_fn: Option<String>,
+    pub automatable: bool,
+    pub show_command_as: Option<String>,
 }
 
 impl Default for TwitchResponder {
     fn default() -> TwitchResponder {
         TwitchResponder {
-            responder_id: 0,
+            id: 0,
             responder_profile: 0,
             last_instance: 0,
             permissions: 0,
             cooldown: 99999,
             include_specific_users: None,
             exclude_specific_users: None,
+            last_automatic_instance: 0,
+            message_count_at_last_automatic: 0,
             interval: None,
             distance: None,
             requires_broadcaster: true,
@@ -51,10 +57,12 @@ impl Default for TwitchResponder {
             requires_vip: false,
             title: "".to_owned(),
             starts_with: None,
-            contains: Some("falskdufbnsdlfasdikfnyjmasdlifas".to_owned()),
+            contains: None,
             ends_with: None,
-            response: Some("".to_string()),
+            response: None,
             response_fn: None,
+            automatable: false,
+            show_command_as: Some("".to_owned()),
         }
     }
 }
@@ -126,4 +134,6 @@ pub struct UserSelectedResponder {
     pub per_user_cooldown: i32,
     pub include_specific_users: Option<String>,
     pub exclude_specific_users: Option<String>,
+    pub last_automatic_instance: i32,
+    pub message_count_at_last_automatic: i32,
 }

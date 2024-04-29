@@ -10,7 +10,7 @@ pub fn construct_url(base_url: &str, params: Vec<(&str, &str)>) -> String {
 }
 
 /// Formats a Vec into a HTTP POST request body
-pub fn compose_post_body(params: Vec<(&str, String)>) -> String {
+pub fn compose_post_body(params: &Vec<(&str, String)>) -> String {
     let mut output: Vec<String> = vec![];
     for param in params.into_iter() {
         output.push(format!("{}={}", param.0, param.1));

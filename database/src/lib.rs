@@ -19,6 +19,7 @@ pub mod bot;
 pub mod channel;
 pub mod login;
 pub mod models;
+pub mod responder;
 
 mod schema;
 

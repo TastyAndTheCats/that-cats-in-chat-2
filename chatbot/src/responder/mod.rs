@@ -4,17 +4,17 @@ use twitch_irc::message::PrivmsgMessage;
 use database::models::responders::TwitchResponder;
 use types::get::channel;
 
-use crate::{
-    local_types::{faked_privmsgmessage, TwitchClient},
-    responder::permissions::Permissions,
-};
+use crate::local_types::{faked_privmsgmessage, TwitchClient};
 
-mod core;
-mod game;
+pub mod cooldown;
 pub mod permissions;
 
+mod api;
+mod core;
+mod game;
+
 /// Send a message to any authorized channel (this is sort of just future-proofing)
-async fn send_message_to(client: &TwitchClient, channel_name: String, message: String) {
+async fn send_message_to(client: TwitchClient, channel_name: String, message: String) {
     client
         .me(channel_name, message.replace('\n', "").to_owned())
         .await
@@ -23,7 +23,7 @@ async fn send_message_to(client: &TwitchClient, channel_name: String, message: S
 
 /// Send a message to the TWITCH_CHANNEL
 pub async fn send(
-    client: &TwitchClient,
+    client: TwitchClient,
     msg: Option<&PrivmsgMessage>,
     message: String,
     responder: Option<&TwitchResponder>,
@@ -31,29 +31,20 @@ pub async fn send(
     let channel = channel(None, None);
     let privmsg = faked_privmsgmessage(&message);
     let msg = msg.unwrap_or(&privmsg);
-
-    let auth_level = permissions::check(msg);
     let responder = responder.unwrap();
-    println!("{:?} - {:?}", auth_level, responder);
 
-    if auth_level == Permissions::ALL // All
-        // Broadcaster-only
-        || responder.requires_broadcaster && auth_level == Permissions::BROADCASTER
-        // Moderator+
-        || (responder.requires_moderator
-            && (auth_level == Permissions::BROADCASTER || auth_level == Permissions::MODERATOR))
-        // VIP+
-        || (responder.requires_vip
-            && (auth_level == Permissions::BROADCASTER
-                || auth_level == Permissions::MODERATOR
-                || auth_level == Permissions::VIP))
-        // Subscriber+
-        || (responder.requires_subscriber
-            && (auth_level == Permissions::BROADCASTER
-                || auth_level == Permissions::MODERATOR
-                || auth_level == Permissions::SUBSCRIBER))
-    {
-        send_message_to(client, channel.login, message).await;
+    tracing::debug!("Responder: {:?}", responder);
+
+    if permissions::check(msg, responder) {
+        if msg.sender.id == msg.channel_id || cooldown::check(responder) {
+            database::responder::update_last_instance(channel.id, responder.id).expect(&format!(
+                "channel.id {} or responder.id {} are wrong",
+                channel.id, responder.id
+            ));
+            send_message_to(client, channel.login, message).await;
+        } else {
+            tracing::info!("Too soon to call {}", responder.title);
+        }
     } else {
         tracing::info!(
             "Insufficient permissions on call to {} from {}",
@@ -65,8 +56,8 @@ pub async fn send(
 
 /// Run a function to generate a message to send to the TWITCH_CHANNEL
 pub async fn function_message(
-    responder: &TwitchResponder,
-    msg: &PrivmsgMessage,
+    responder: TwitchResponder,
+    msg: PrivmsgMessage,
     command: &str,
 ) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
@@ -75,9 +66,11 @@ pub async fn function_message(
         "" | "default" | "text" => responder.response.as_ref().unwrap().to_owned(),
         _ => {
             if response_fn.starts_with("core") {
-                core::dispatch(responder, msg, command).await
+                core::dispatch(&responder, &msg, command).await
+            } else if response_fn.starts_with("api") {
+                api::dispatch(&responder, &msg, command).await
             } else if response_fn.starts_with("game") {
-                game::dispatch(responder, command).await
+                game::dispatch(&responder, &msg, command).await
             } else {
                 format!("Unknown response Function: {}", response_fn)
             }

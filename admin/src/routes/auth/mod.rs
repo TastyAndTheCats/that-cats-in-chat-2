@@ -4,6 +4,7 @@ use actix_web::web::{Query, ServiceConfig};
 use api_consumers::twitch::auth;
 use database::login;
 use types::auth::TwitchLoginSuccessResponse;
+use utils::serde_json::unwrap_reqwest;
 
 mod bot;
 mod user;
@@ -20,15 +21,7 @@ async fn validate_twitch_login(query: &Query<TwitchLoginSuccessResponse>) -> [Op
 
 /// Do Twitch's secret handshake
 async fn get_access_token_from_twitch(query: &Query<TwitchLoginSuccessResponse>) -> String {
-    let handshake_json: serde_json::Value = serde_json::from_str(
-        &auth::complete_handshake(&query.code)
-            .await
-            .expect("Secret handshake with Twitch failed")
-            .text()
-            .await
-            .unwrap(),
-    )
-    .unwrap();
+    let handshake_json = unwrap_reqwest(auth::complete_handshake(&query.code).await).await;
     let access_token = handshake_json["access_token"]
         .as_str()
         .expect("No access_token provided in secret handshake response");
