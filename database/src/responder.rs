@@ -30,6 +30,23 @@ pub fn get_last_instance(user_id: i32, responder_id: i32) -> Result<i32, result:
         .get_result(&mut establish_connection())
 }
 
+pub fn update_last_automatic_instance(
+    user_id: i32,
+    responder_id: i32,
+) -> Result<UserSelectedResponder, result::Error> {
+    diesel::update(
+        user_selected_responders::table
+            .filter(user_selected_responders::user_id.eq(user_id))
+            .filter(user_selected_responders::responder_id.eq(responder_id)),
+    )
+    .set(
+        user_selected_responders::last_automatic_instance
+            .eq(i32::try_from(Utc::now().timestamp()).expect("good until 2038")),
+    )
+    .returning(UserSelectedResponder::as_returning())
+    .get_result(&mut establish_connection())
+}
+
 pub fn update_count(
     user_id: i32,
     responder_id: i32,
@@ -50,5 +67,31 @@ pub fn get_count(user_id: i32, responder_id: i32) -> Result<i32, result::Error> 
         .filter(user_selected_responders::user_id.eq(user_id))
         .filter(user_selected_responders::responder_id.eq(responder_id))
         .select(user_selected_responders::count)
+        .get_result(&mut establish_connection())
+}
+
+pub fn update_last_automatic_message_count(
+    user_id: i32,
+    responder_id: i32,
+    count: i32,
+) -> Result<UserSelectedResponder, result::Error> {
+    diesel::update(
+        user_selected_responders::table
+            .filter(user_selected_responders::user_id.eq(user_id))
+            .filter(user_selected_responders::responder_id.eq(responder_id)),
+    )
+    .set(user_selected_responders::message_count_at_last_automatic.eq(count))
+    .returning(UserSelectedResponder::as_returning())
+    .get_result(&mut establish_connection())
+}
+
+pub fn get_last_automatic_message_count(
+    user_id: i32,
+    responder_id: i32,
+) -> Result<i32, result::Error> {
+    user_selected_responders::table
+        .filter(user_selected_responders::user_id.eq(user_id))
+        .filter(user_selected_responders::responder_id.eq(responder_id))
+        .select(user_selected_responders::message_count_at_last_automatic)
         .get_result(&mut establish_connection())
 }

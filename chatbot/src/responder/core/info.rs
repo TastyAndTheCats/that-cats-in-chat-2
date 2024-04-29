@@ -1,5 +1,5 @@
 use api_consumers::time::time_at_location;
-use chrono::{DateTime, Local, Month};
+use chrono::Month;
 use serde_json::Value;
 use twitch_irc::message::PrivmsgMessage;
 

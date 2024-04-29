@@ -39,7 +39,6 @@ async fn twitch_bot_login_accepted(query: Query<TwitchLoginSuccessResponse>) -> 
 
     let bot_id = utils::parse_id(bot_id.expect("Login was invalid"));
     let bot_owner = database::channel::bot_owner_from_state(&query.state)
-        .await
         .expect("State was invalid, probably a db error");
     let bot_login = bot_login.expect("Login was invalid");
 

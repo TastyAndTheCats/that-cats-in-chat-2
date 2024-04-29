@@ -41,6 +41,7 @@ pub struct TwitchUser {
     pub id: i32,
     pub login: String,
     pub login_state: Option<String>,
+    pub messages_processed: i32,
 }
 
 #[derive(Queryable, Selectable, Debug)]

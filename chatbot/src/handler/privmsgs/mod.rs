@@ -1,8 +1,9 @@
 //! Handles responses to normal chat messages
+use database::channel::increment_messages_counted;
 use regex::Regex;
 use std::env;
 
-use crate::local_types::TwitchClient;
+use crate::local_types::{faked_privmsgmessage, TwitchClient};
 use crate::responder;
 use api_consumers::twitch::users::lookup_user_from_login;
 use database::models::responders::TwitchResponder;
@@ -15,6 +16,7 @@ mod automoderator;
 /// Dispatches all of the chatbot responses. This is the main brain of the chatbot's response engine.
 pub async fn dispatch(client: TwitchClient, msg: PrivmsgMessage, responders: Vec<TwitchResponder>) {
     if automoderator::check(&msg.message_text) {
+        let _ = increment_messages_counted(msg.channel_id.parse::<i32>().unwrap_or(0));
         let m = msg.message_text.to_lowercase();
         for r in responders {
             if let Some(starts_with) = &r.starts_with {
@@ -76,19 +78,23 @@ fn dispatch_with_regex(
         let r = r.clone();
         if re.is_match(&m) {
             tokio::spawn(async move {
-                send_response_or_run_response_fn(client, r, msg, &opt).await;
+                send_response_or_run_response_fn(client, r, Some(msg), Some(&opt)).await;
             });
             break;
         }
     }
 }
 
-async fn send_response_or_run_response_fn(
+pub async fn send_response_or_run_response_fn(
     client: TwitchClient,
     r: TwitchResponder,
-    msg: PrivmsgMessage,
-    command: &str,
+    msg: Option<PrivmsgMessage>,
+    command: Option<&str>,
 ) {
+    let msg = msg.unwrap_or(faked_privmsgmessage(
+        &r.clone().show_command_as.unwrap_or(String::new()),
+    ));
+    let command = command.unwrap_or("");
     responder::send(
         client,
         Some(&msg),

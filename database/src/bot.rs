@@ -37,6 +37,8 @@ pub fn get_combined_responders_for_user(
             // user_selected_responders::per_user_cooldown, // TODO: I need to keep track of users for this and I don't yet
             user_selected_responders::include_specific_users,
             user_selected_responders::exclude_specific_users,
+            user_selected_responders::last_automatic_instance,
+            user_selected_responders::message_count_at_last_automatic,
             twitch_bot_auto_response_profiles::interval,
             twitch_bot_auto_response_profiles::distance,
             twitch_bot_responder_permissions::requires_broadcaster,
@@ -50,6 +52,8 @@ pub fn get_combined_responders_for_user(
             twitch_bot_responders::ends_with,
             twitch_bot_responders::response,
             twitch_bot_responders::response_fn,
+            twitch_bot_responders::automatable,
+            twitch_bot_responders::show_command_as,
         ))
         .get_results(&mut establish_connection())
 }

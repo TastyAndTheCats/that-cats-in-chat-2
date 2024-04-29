@@ -7,13 +7,13 @@ use database::models::responders::TwitchResponder;
 use tokio::{self, sync::mpsc::UnboundedReceiver};
 use twitch_irc::message::{FollowersOnlyMode, ServerMessage};
 
-mod privmsgs;
+pub mod privmsgs;
 use crate::local_types::TwitchClient;
 
 /// Decides what sort of message is being received by the chatbot and what to do about it
 pub async fn dispatch(
     client: TwitchClient,
-    incoming_messages: &mut UnboundedReceiver<ServerMessage>,
+    mut incoming_messages: UnboundedReceiver<ServerMessage>,
     responders: Vec<TwitchResponder>,
 ) {
     while let Some(message) = incoming_messages.recv().await {

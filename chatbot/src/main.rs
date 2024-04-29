@@ -16,6 +16,7 @@ mod auth;
 mod handler;
 mod local_types;
 mod responder;
+mod timed_messages;
 
 use database::models::responders::TwitchResponder;
 use local_types::TwitchClient;
@@ -39,7 +40,7 @@ fn start_app() {
 
 /// Things needed for the bot to work
 async fn start_bot() -> tokio::task::JoinHandle<()> {
-    let (mut incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
+    let (incoming_messages, client) = auth::configure_chatbot(None, None, None, None).await;
     let responders = bot_initialization().await;
     let channel = channel(None, None);
     client.join(channel.login.to_string()).unwrap(); // NOTE: We could listen to multiple channels with the same bot, but we have to independently reply to the same channel's chat
@@ -48,9 +49,12 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
     print_responders(&responders);
     say_hello(client.clone(), &responders).await;
 
+    let timed_message_client = client.clone();
+    let timed_message_responders = responders.clone();
     tokio::spawn(async move {
-        handler::dispatch(client.clone(), &mut incoming_messages, responders.clone()).await
-    })
+        timed_messages::scheduler(timed_message_client, timed_message_responders).await
+    });
+    tokio::spawn(async move { handler::dispatch(client, incoming_messages, responders).await })
 }
 
 /// Things that need to happen before the bot starts listening to the channel
