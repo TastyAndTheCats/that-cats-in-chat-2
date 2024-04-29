@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
 
-members = [ "admin", "api_consumers", "certs", "chatbot", "database", "utils" ]
+members = [ "admin", "api_consumers", "certs", "chatbot", "database", "types", "utils" ]
 
 default-members = [ "chatbot", "admin", "certs" ]

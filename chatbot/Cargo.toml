@@ -1,6 +1,6 @@
 [package]
 name = "chatbot"
-version = "0.0.0"
+version = "2.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,9 +11,11 @@ async-trait = "0.1.80"
 chrono = "0.4.37"
 database = { path="../database" }
 dotenvy = "0.15.7"
+regex = "1.10.4"
 serde_json = "1.0.115"
 tokio = { version = "1.37.0", features = ["rt-multi-thread"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 twitch-irc = { version = "5.0.1", features = ["refreshing-token-native-tls"] }
+types = { path="../types" }
 utils = { path="../utils" }
