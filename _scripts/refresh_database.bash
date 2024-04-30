@@ -6,6 +6,3 @@ pg_dump --format=p --data-only --no-owner --dbname=$POSTGRES_dbname > database/b
 diesel database reset
 diesel migration run
 psql $POSTGRES_dbname -f database/backups/data.sql
-# pg_restore --dbname=$POSTGRES_dbname -c --format=p --schema-only database/backups/data.sql
-
-# psql $POSTGRES_dbname -f database/backups/backup_1_data.sql
