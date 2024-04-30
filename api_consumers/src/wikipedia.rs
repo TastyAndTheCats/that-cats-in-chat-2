@@ -1,5 +1,5 @@
 use reqwest::{Client, Error, Response};
-use utils::{message::truncate_response_for_twitch, serde_json::unwrap_reqwest};
+use utils::serde_json::unwrap_reqwest;
 
 pub async fn lookup(title: String) -> String {
     let page = unwrap_reqwest(get_wiki(title).await).await;
@@ -17,7 +17,7 @@ pub async fn lookup(title: String) -> String {
         String::from(resp_title)
     };
 
-    truncate_response_for_twitch(extract)
+    extract
 }
 
 pub async fn get_wiki(title: String) -> Result<Response, Error> {

@@ -25,7 +25,7 @@ pub async fn scheduler(client: TwitchClient, responders: Vec<TwitchResponder>) {
         loop_counter = loop_counter + 1;
         tracing::info!("starting timed_message::scheduler loop {}", loop_counter);
         run_scheduled_responses(&client, valid_responders.clone(), &user_id).await;
-        tokio::time::sleep(Duration::new(5, 0)).await;
+        tokio::time::sleep(Duration::new(30, 0)).await;
     }
 }
 
@@ -59,6 +59,7 @@ async fn run_scheduled_responses(
             tokio::spawn(async move {
                 send_response_or_run_response_fn(client, responder, None, None).await;
             });
+            break; // Only run one auto-message per cycle.
         }
     }
 }

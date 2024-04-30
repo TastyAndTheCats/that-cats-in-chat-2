@@ -34,11 +34,13 @@ pub fn first_word_after_command_as_number(
 }
 
 pub fn truncate_response_for_twitch(msg: String) -> String {
-    let msg = msg.split("\n").collect::<Vec<&str>>()[0].to_owned();
+    let msg = msg.replace('\n', " ").to_owned();
+    let append_if_shortened = "…";
+    let max_len = 498 - append_if_shortened.len();
 
-    let max_len = 460;
     if msg.len() >= max_len {
-        format!("{}…", msg[..max_len].to_owned())
+        let short_msg = msg[..max_len].to_owned();
+        format!("{}{}", short_msg, append_if_shortened)
     } else {
         msg.to_owned()
     }

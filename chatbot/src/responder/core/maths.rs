@@ -3,7 +3,7 @@ use twitch_irc::message::PrivmsgMessage;
 
 use database::models::responders::TwitchResponder;
 use utils::{
-    message::{single_word_after_command, truncate_response_for_twitch},
+    message::single_word_after_command,
     rand::{random_number_1_to, usize_random_number_1_to},
 };
 
@@ -26,7 +26,7 @@ fn cmd_is_prime(msg: &PrivmsgMessage, command: &str) -> String {
         .unwrap_or(0);
 
     if maybe_prime == 0 {
-        return String::from("Unable to compute.");
+        return format!("Unable to compute primality of {}", single_word_after_command(msg, command));
     } else if maybe_prime == 1 || maybe_prime == 2 {
         return format!("Of course {} is prime, are you being silly?", maybe_prime);
     } else if maybe_prime % 2 == 0 {
@@ -91,7 +91,7 @@ fn cmd_roll_x_sided_die(msg: &PrivmsgMessage, command: &str) -> String {
         || number_of_dice > std::usize::MAX
         || number_of_dice * number_of_sides_on_die > std::usize::MAX
     {
-        return truncate_response_for_twitch(format!("Either {} is too many dice or {} is too many sides, or both, or a combination of the two", number_of_dice, number_of_sides_on_die));
+        return format!("Either {} is too many dice or {} is too many sides, or both, or a combination of the two", number_of_dice, number_of_sides_on_die);
     }
 
     let mut dice_rolls: Vec<usize> = vec![];
@@ -103,7 +103,7 @@ fn cmd_roll_x_sided_die(msg: &PrivmsgMessage, command: &str) -> String {
 
     let total: usize = dice_rolls.iter().sum();
 
-    truncate_response_for_twitch(format!(
+    format!(
         "{{sender}} rolled {} {}-sided {} and got {}{}",
         number_of_dice,
         number_of_sides_on_die,
@@ -121,5 +121,5 @@ fn cmd_roll_x_sided_die(msg: &PrivmsgMessage, command: &str) -> String {
         } else {
             String::new()
         },
-    ))
+    )
 }

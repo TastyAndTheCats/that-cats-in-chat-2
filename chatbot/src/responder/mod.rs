@@ -3,6 +3,7 @@ use twitch_irc::message::PrivmsgMessage;
 
 use database::models::responders::TwitchResponder;
 use types::get::channel;
+use utils::message::truncate_response_for_twitch;
 
 use crate::local_types::{faked_privmsgmessage, TwitchClient};
 
@@ -15,10 +16,19 @@ mod game;
 
 /// Send a message to any authorized channel (this is sort of just future-proofing)
 async fn send_message_to(client: TwitchClient, channel_name: String, message: String) {
-    client
-        .me(channel_name, message.replace('\n', "").to_owned())
-        .await
-        .expect("Couldn't send message!");
+    let message = truncate_response_for_twitch(message);
+    if message.len() > 500 {
+        tracing::error!(
+            "MESSAGE WAS TOO LONG FOR TWITCH {} - {}",
+            message,
+            channel_name
+        )
+    } else {
+        client
+            .me(channel_name, message)
+            .await
+            .expect("Couldn't send message!");
+    }
 }
 
 /// Send a message to the TWITCH_CHANNEL

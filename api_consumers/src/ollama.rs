@@ -5,7 +5,6 @@ use ollama_rs::{
     generation::completion::{request::GenerationRequest, GenerationResponse},
     Ollama,
 };
-use utils::message::truncate_response_for_twitch;
 
 #[derive(Copy, Clone)]
 pub struct LlamaBot<'a> {
@@ -37,9 +36,8 @@ impl Talk for LlamaBot<'_> {
         } else {
             String::new()
         };
-        let short_resp = truncate_response_for_twitch(full_resp);
-        tracing::debug!("{} response: {}", self.model, short_resp);
-        short_resp
+        tracing::debug!("{} response: {}", self.model, full_resp);
+        full_resp
     }
 
     async fn get_response(
