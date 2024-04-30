@@ -2,3 +2,5 @@
 .vscode/
 target/
 certs/*.pem
+database/backups/*.tar
+database/backups/*.sql
