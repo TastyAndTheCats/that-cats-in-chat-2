@@ -55,7 +55,15 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
     tokio::spawn(async move {
         timed_messages::scheduler(timed_message_client, timed_message_responders).await
     });
-    tokio::spawn(async move { handler::dispatch(client, incoming_messages, responders, chatbot_info.id.unwrap_or(0)).await })
+    tokio::spawn(async move {
+        handler::dispatch(
+            client,
+            incoming_messages,
+            responders,
+            chatbot_info.id.unwrap_or(0),
+        )
+        .await
+    })
 }
 
 /// Things that need to happen before the bot starts listening to the channel

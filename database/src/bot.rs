@@ -5,8 +5,8 @@ use crate::{
     establish_connection,
     models::{responders::TwitchResponder, LoginProcess, TwitchBot},
     schema::{
-        twitch_bot, twitch_bot_auto_response_profiles, twitch_bot_responder_permissions, twitch_bot_responders,
-        twitch_login_process, twitch_user, user_selected_responders,
+        twitch_bot, twitch_bot_auto_response_profiles, twitch_bot_responder_permissions,
+        twitch_bot_responders, twitch_login_process, twitch_user, user_selected_responders,
     },
 };
 
@@ -57,7 +57,6 @@ pub fn get_combined_responders_for_user(
         ))
         .get_results(&mut establish_connection())
 }
-
 
 pub fn bot_from_owner_id(user_id: &i32) -> Result<TwitchBot, result::Error> {
     twitch_bot::table

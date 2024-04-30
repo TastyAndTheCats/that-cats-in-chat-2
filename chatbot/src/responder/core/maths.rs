@@ -26,7 +26,10 @@ fn cmd_is_prime(msg: &PrivmsgMessage, command: &str) -> String {
         .unwrap_or(0);
 
     if maybe_prime == 0 {
-        return format!("Unable to compute primality of {}", single_word_after_command(msg, command));
+        return format!(
+            "Unable to compute primality of {}",
+            single_word_after_command(msg, command)
+        );
     } else if maybe_prime == 1 || maybe_prime == 2 {
         return format!("Of course {} is prime, are you being silly?", maybe_prime);
     } else if maybe_prime % 2 == 0 {
@@ -35,15 +38,8 @@ fn cmd_is_prime(msg: &PrivmsgMessage, command: &str) -> String {
             maybe_prime
         );
     };
-    let mut is_prime = true;
-    let mut multiple = 0;
-    for check_with in (3..maybe_prime / 2).step_by(2) {
-        if maybe_prime % check_with == 0 {
-            multiple = check_with;
-            is_prime = false;
-            break;
-        }
-    }
+
+    let (is_prime, multiple) = actual_prime_check(maybe_prime);
 
     if is_prime {
         format!("{} IS prime, {{sender}}", maybe_prime)
@@ -56,6 +52,19 @@ fn cmd_is_prime(msg: &PrivmsgMessage, command: &str) -> String {
             maybe_prime
         )
     }
+}
+
+fn actual_prime_check(maybe_prime: usize) -> (bool, usize) {
+    let mut is_prime = true;
+    let mut multiple = 0;
+    for check_with in (3..maybe_prime / 2).step_by(2) {
+        if maybe_prime % check_with == 0 {
+            multiple = check_with;
+            is_prime = false;
+            break;
+        }
+    }
+    (is_prime, multiple)
 }
 
 fn cmd_coin_flip() -> String {

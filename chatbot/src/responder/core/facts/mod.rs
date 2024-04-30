@@ -22,6 +22,11 @@ pub async fn dispatch(
         )
     } else if response_fn.starts_with("core::facts::dadjoke") {
         format!("Dad joke for {{sender}}: {}", x_facts("dadjokes.txt"))
+    } else if response_fn.starts_with("core::facts::discord") {
+        format!(
+            "Discordianism-ism for {{sender}}: {}",
+            x_facts("discord.txt")
+        )
     } else if response_fn.starts_with("core::facts::dogfact") {
         format!("Dog fact for {{sender}}: {}", x_facts("dogfacts.txt"))
     } else if response_fn.starts_with("core::facts::fight") {

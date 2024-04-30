@@ -15,7 +15,7 @@ pub async fn dispatch(
     client: TwitchClient,
     mut incoming_messages: UnboundedReceiver<ServerMessage>,
     responders: Vec<TwitchResponder>,
-     bot_id: i32,
+    bot_id: i32,
 ) {
     while let Some(message) = incoming_messages.recv().await {
         match message {

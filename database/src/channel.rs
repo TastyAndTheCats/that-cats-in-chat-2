@@ -2,11 +2,7 @@
 
 use diesel::{prelude::*, result};
 
-use crate::{
-    establish_connection,
-    models::TwitchUser,
-    schema::twitch_user,
-};
+use crate::{establish_connection, models::TwitchUser, schema::twitch_user};
 pub fn increment_messages_counted(user_id: i32) -> Result<TwitchUser, result::Error> {
     use crate::schema::twitch_user::dsl::*;
     diesel::update(twitch_user.filter(id.eq(user_id)))
