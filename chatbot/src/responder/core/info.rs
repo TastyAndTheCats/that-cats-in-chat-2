@@ -103,7 +103,7 @@ fn convert_time_at_location_request_to_discordian_date_string(resp: Value) -> St
     }
     if is_leap_year && day_of_year == 60 {
         return format!("It's St. Tib's Day {}!", discordian_year);
-    } 
+    }
 
     let mut leap_year_offset = 0;
     if is_leap_year && day_of_year > 59 {
@@ -116,8 +116,13 @@ fn convert_time_at_location_request_to_discordian_date_string(resp: Value) -> St
         discordian_day = discordian_day - lengths_of_discordian_seasons[discordian_season];
         discordian_season = discordian_season + 1;
     }
-    let discordian_day_offset: usize = ((day_of_year - 1 + leap_year_offset)% 5).try_into().unwrap();
-    println!("{} {} {} {}", discordian_season, discordian_day, day_of_year, leap_year_offset);
+    let discordian_day_offset: usize = ((day_of_year - 1 + leap_year_offset) % 5)
+        .try_into()
+        .unwrap();
+    println!(
+        "{} {} {} {}",
+        discordian_season, discordian_day, day_of_year, leap_year_offset
+    );
 
     let mut holidays = String::new();
 
@@ -134,7 +139,6 @@ fn convert_time_at_location_request_to_discordian_date_string(resp: Value) -> St
             ["Chaoflux", "Discoflux", "Confuflux", "Bureflux", "Afflux"][discordian_season]
         );
     }
-
 
     format!(
         "It's {} the {} day of {} (year of our Goddess {}) in {}.{}",

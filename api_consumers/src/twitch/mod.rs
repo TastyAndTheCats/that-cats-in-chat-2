@@ -46,28 +46,25 @@ async fn request(
     user_id: Option<i32>,
     params: Option<Vec<(&str, String)>>,
 ) -> Result<Response, Error> {
-    let user_id = match user_id {
-        Some(user_id) => user_id,
-        None => env::var("DEFAULT_BOT_ID")
-            .unwrap_or("0".to_owned())
-            .parse::<i32>()
-            .unwrap_or(0),
-    };
+    let params = params.unwrap_or(vec![]);
     let result = match verb {
-        RequestVerb::GET => get_req(url, user_id).await.unwrap(),
-        RequestVerb::POST => post_req(url, params.unwrap_or(vec![]), user_id)
-            .await
-            .unwrap(),
-        RequestVerb::PATCH => patch_req(url, params.unwrap_or(vec![]), user_id)
-            .await
-            .unwrap(),
+        RequestVerb::GET => get_req(url).await.unwrap(),
+        RequestVerb::POST => post_req(url, params).await.unwrap(),
+        RequestVerb::PATCH => patch_req(url, params).await.unwrap(),
     };
     // let result = post_req(url, params, user_id).await.unwrap();
     match result.status() {
         StatusCode::OK | StatusCode::NO_CONTENT => Ok(result),
         StatusCode::UNAUTHORIZED => {
+            let user_id = match user_id {
+                Some(user_id) => user_id,
+                None => env::var("DEFAULT_BOT_ID")
+                    .unwrap_or("0".to_owned())
+                    .parse::<i32>()
+                    .unwrap_or(0),
+            };
             auth::token::refresh(user_id).await;
-            get_req(url, user_id).await
+            get_req(url).await
         }
         _ => {
             tracing::warn!("Unhandled response code {}", result.status());
@@ -77,8 +74,8 @@ async fn request(
 }
 
 /// GET: If the response is invalid, refresh the tokens and try again
-async fn get_req(url: &str, user_id: i32) -> Result<Response, Error> {
-    let (client_id, access_token) = twitch::client_and_access_token(Some(user_id));
+async fn get_req(url: &str) -> Result<Response, Error> {
+    let (client_id, access_token) = twitch::client_and_access_token();
     Client::new()
         .get(url)
         .header(
@@ -91,8 +88,8 @@ async fn get_req(url: &str, user_id: i32) -> Result<Response, Error> {
 }
 
 /// POST: If the response is invalid, refresh the tokens and try again
-async fn post_req(url: &str, params: Vec<(&str, String)>, user_id: i32) -> Result<Response, Error> {
-    let (client_id, access_token) = twitch::client_and_access_token(Some(user_id));
+async fn post_req(url: &str, params: Vec<(&str, String)>) -> Result<Response, Error> {
+    let (client_id, access_token) = twitch::client_and_access_token();
     Client::new()
         .post(url)
         .header(
@@ -106,12 +103,8 @@ async fn post_req(url: &str, params: Vec<(&str, String)>, user_id: i32) -> Resul
 }
 
 /// PATCH: If the response is invalid, refresh the tokens and try again
-async fn patch_req(
-    url: &str,
-    params: Vec<(&str, String)>,
-    user_id: i32,
-) -> Result<Response, Error> {
-    let (client_id, access_token) = twitch::client_and_access_token(Some(user_id));
+async fn patch_req(url: &str, params: Vec<(&str, String)>) -> Result<Response, Error> {
+    let (client_id, access_token) = twitch::client_and_access_token();
     Client::new()
         .patch(url)
         .header(
