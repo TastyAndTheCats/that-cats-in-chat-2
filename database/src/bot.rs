@@ -66,10 +66,10 @@ pub fn bot_from_owner_id(user_id: &i32) -> Result<TwitchBot, result::Error> {
         .get_result(&mut establish_connection())
 }
 
-// pub fn bot_owner_from_state(state: &str) -> Result<TwitchBot, result::Error> {
-//     tracing::debug!("state: {}", state);
-//     twitch_bot::table
-//         .filter(twitch_bot::state.eq(state))
-//         .select(TwitchBot::as_select())
-//         .get_result(&mut establish_connection())
-// }
+pub fn bot_owner_from_state(state: &str) -> Result<TwitchBot, result::Error> {
+    tracing::debug!("state: {}", state);
+    twitch_bot::table
+        .filter(twitch_bot::state.eq(state))
+        .select(TwitchBot::as_select())
+        .get_result(&mut establish_connection())
+}
