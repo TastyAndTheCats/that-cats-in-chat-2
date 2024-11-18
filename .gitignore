@@ -2,3 +2,4 @@
 .vscode/
 target/
 certs/*.pem
+database/backups/
