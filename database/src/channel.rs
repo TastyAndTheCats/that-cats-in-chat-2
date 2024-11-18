@@ -17,3 +17,7 @@ pub fn get_messages_counted(user_id: i32) -> Result<i32, result::Error> {
         .select(twitch_user::messages_processed)
         .get_result(&mut establish_connection())
 }
+
+// pub fn last_message_in_channel(user_id: i32) -> Result<i32, result::Error> {
+    
+// } TODO

@@ -67,7 +67,7 @@ async fn run_scheduled_responses(
 fn check_responder_interval(user_id: &i32, responder: &TwitchResponder, now: i32) -> bool {
     // If the cutoff timestamp is before now (i.e. bot is allowed to run command)
     let interval_compare = get_last_instance(*user_id, responder.id).unwrap_or(0)
-        + responder.cooldown
+        + responder.cooldown // minimum distance since last command
         + responder.interval.unwrap(); // timestamp after which bot can re-run the responder.
     tracing::debug!(
         "{} interval: {} <= {} = {}",
@@ -111,3 +111,6 @@ fn get_valid_responders(responders: Vec<TwitchResponder>) -> Vec<TwitchResponder
 
     valid_responders
 }
+
+/// Posts a message even if the minimum distance isn't satisfied if the time since the last message is greater than x
+fn check_time_since_any_last_message(){}

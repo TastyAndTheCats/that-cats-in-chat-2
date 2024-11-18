@@ -1,4 +1,4 @@
-use api_consumers::ollama::{LlamaBot, Talk};
+use api_consumers::ollama::{LlamaBot,Talk};
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
 use utils::{message::rest_of_chat_message, rand::random_from_vec};
