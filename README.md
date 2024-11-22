@@ -7,30 +7,30 @@ The Cats in Chat (TCIC or sometimes just Cats) is a multifunction chatbot focuss
 
 ## How?
 
-I'll Dockerize this all eventually but I'm developing this all in a VM anyway, so, until I need to deploy it somewhere, getting Docker working would just be less work being done on the bot -> this is contrary to many of my projects, trust me I've thought about it.
+I'll Dockerize this all eventually, but I'm developing this all in a VM anyway, so, until I need to deploy it somewhere, getting Docker working would just be less work being done on the bot -> this is contrary to many of my projects, trust me I've thought about it.
 
 ### Prerequisites
 - Rust
 - Python? 3.10+
 - Postgres
 
-The scripts in `_scripts` are all pretty straight-forward, it's easier for me than remembering the specific commands every time, even when there's nothing special about it.  I :
+The scripts in `_scripts` are all pretty straight-forward, it's easier for me than remembering the specific commands every time, even when there's nothing special about it:
 
 1) Create a `.env` at the top level of the workspace (where this README is) from `.env-example`. You'll need your own chatbot app (from [dev.twitch.tv](dev.twitch.tv)) with the correct redirects (which are shown in the env file)
-1) Generate self-signed certificates using `create_new_certs.sh`, or (idk how yet, but), get real ones with LetsEncrypt.
-1) Run `diesel_migrations.sh` to setup your database.
-1) Run `run_admin.sh` to start running the Admin site.
+2) Generate self-signed certificates using `create_new_certs.sh`, or (idk how yet, but), get real ones with LetsEncrypt.
+3) Run `run_diesel_migrations.sh` to set up your database. (After `cargo install diesel_cli --no-default-features --features postgres`, if necessary)
+4) `cargo install cargo-watch`
+5) Run `run_admin.sh` to start running the Admin site.
 
-    1) Visit https://$MY_LOCAL_DOMAIN:8443/
-    1) Login, go through normal Twitch app approval process
-    1) Open the "Bot Login" link: (When/if I make the website-activation method available again, those will all be run through TheCatsInChat but if you're running this on  your own, you're gonna be using your own bot account)
+    1) Visit https://$MY_LOCAL_DOMAIN:8443/ (e.g. https://127.0.0.1:8443 )
+    2) Login, go through normal Twitch app approval process
+    3) Open the "Bot Login" link: (When/if I make the website-activation method available again, those will all be run through TheCatsInChat but if you're running this on  your own, you're gonna be using your own bot account)
 
         a) in another browser/incognito window and do the login process with whatever account you want to use for your chatbot.  
         b) maybe, in the same window with the same account.  Not 100% sure this works.
     
-1) Once you've got your credentials in place, you can shut down the Admin site (or not) and run `run_chatbot.sh`.
-
-That's it?!
+6) Once you've got your credentials in place, you can shut down the Admin site (or not) and run `run_chatbot.sh`.
+7) Everything after that is part of the database which doesn't have any default commands (yet) so you'll have to put in your own commands for now.
 
 ## About
 
