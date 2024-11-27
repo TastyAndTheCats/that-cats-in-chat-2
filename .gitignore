@@ -1,5 +1,13 @@
+# Safety Reasons
 .env
-.vscode/
-target/
 certs/*.pem
-database/backups/
+database/backups/*.tar
+database/backups/*.sql
+
+# IDEs
+.idea/
+.vscode/
+
+# Buildable
+target/
+

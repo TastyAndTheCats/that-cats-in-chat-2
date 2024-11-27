@@ -19,36 +19,41 @@ pub async fn dispatch(client: TwitchClient, msg: PrivmsgMessage, responders: Vec
         let _ = increment_messages_counted(msg.channel_id.parse::<i32>().unwrap_or(0));
         let m = msg.message_text.to_lowercase();
         for r in responders {
-            if let Some(starts_with) = &r.starts_with {
-                dispatch_with_regex(
-                    client.clone(),
-                    msg.clone(),
-                    &r,
-                    m.to_owned(),
-                    starts_with,
-                    (r"^", r"\b.*?$"),
-                );
-            }
-            if let Some(contains) = &r.contains {
-                dispatch_with_regex(
-                    client.clone(),
-                    msg.clone(),
-                    &r,
-                    m.to_owned(),
-                    contains,
-                    (r"^.*\W?", r"\b.*?$"),
-                );
-            }
-            if let Some(ends_with) = &r.ends_with {
-                dispatch_with_regex(
-                    client.clone(),
-                    msg.clone(),
-                    &r,
-                    m.to_owned(),
-                    ends_with,
-                    (r"^.*\W?", r"$"),
-                );
-            }
+            let client = client.clone();
+            let msg = msg.clone();
+            let m = m.clone();
+            tokio::spawn(async move {
+                if let Some(starts_with) = &r.starts_with {
+                    dispatch_with_regex(
+                        client.clone(),
+                        msg.clone(),
+                        &r,
+                        m.to_owned(),
+                        starts_with,
+                        (r"^", r"\b.*?$"),
+                    );
+                }
+                if let Some(contains) = &r.contains {
+                    dispatch_with_regex(
+                        client.clone(),
+                        msg.clone(),
+                        &r,
+                        m.to_owned(),
+                        contains,
+                        (r"^.*\W?", r"\b.*?$"),
+                    );
+                }
+                if let Some(ends_with) = &r.ends_with {
+                    dispatch_with_regex(
+                        client.clone(),
+                        msg.clone(),
+                        &r,
+                        m.to_owned(),
+                        ends_with,
+                        (r"^.*\W?", r"$"),
+                    );
+                }
+            });
         }
     }
 }

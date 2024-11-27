@@ -134,6 +134,7 @@ pub struct UserSelectedResponder {
     pub per_user_cooldown: i32,
     pub include_specific_users: Option<String>,
     pub exclude_specific_users: Option<String>,
+    pub count: i32,
     pub last_automatic_instance: i32,
     pub message_count_at_last_automatic: i32,
 }

@@ -1,6 +1,6 @@
 //! Functions that use the rand crate
 
-use rand::{distributions::Alphanumeric, prelude::*, seq::SliceRandom, Rng};
+use rand::{distributions::Alphanumeric, seq::SliceRandom, thread_rng, Rng};
 
 /// Generates a random String of length from alphanumerics
 pub fn generate_password(length: usize) -> String {
@@ -45,4 +45,10 @@ pub fn random_number_x_to_y(x: i32, y: i32) -> i32 {
 
 pub fn random_from_vec<T>(input: &Vec<T>) -> Option<&T> {
     input.choose(&mut rand::thread_rng())
+}
+
+pub fn shuffled_vec<T: Clone>(input: Vec<T>) -> Vec<T> {
+    let mut to_shuffle = input.clone();
+    to_shuffle.shuffle(&mut thread_rng());
+    to_shuffle
 }

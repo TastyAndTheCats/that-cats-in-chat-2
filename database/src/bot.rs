@@ -3,10 +3,10 @@ use types::get::channel;
 
 use crate::{
     establish_connection,
-    models::{responders::TwitchResponder, LoginProcess},
+    models::{responders::TwitchResponder, LoginProcess, TwitchBot},
     schema::{
-        twitch_bot_auto_response_profiles, twitch_bot_responder_permissions, twitch_bot_responders,
-        twitch_login_process, twitch_user, user_selected_responders,
+        twitch_bot, twitch_bot_auto_response_profiles, twitch_bot_responder_permissions,
+        twitch_bot_responders, twitch_login_process, twitch_user, user_selected_responders,
     },
 };
 
@@ -56,4 +56,20 @@ pub fn get_combined_responders_for_user(
             twitch_bot_responders::show_command_as,
         ))
         .get_results(&mut establish_connection())
+}
+
+pub fn bot_from_owner_id(user_id: &i32) -> Result<TwitchBot, result::Error> {
+    twitch_bot::table
+        .inner_join(twitch_user::table)
+        .filter(twitch_user::id.eq(user_id))
+        .select(TwitchBot::as_select())
+        .get_result(&mut establish_connection())
+}
+
+pub fn bot_owner_from_state(state: &str) -> Result<TwitchBot, result::Error> {
+    tracing::debug!("state: {}", state);
+    twitch_bot::table
+        .filter(twitch_bot::state.eq(state))
+        .select(TwitchBot::as_select())
+        .get_result(&mut establish_connection())
 }

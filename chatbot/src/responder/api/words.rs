@@ -1,10 +1,7 @@
 use api_consumers::words::{define, explore};
 use database::models::responders::TwitchResponder;
 use twitch_irc::message::PrivmsgMessage;
-use utils::{
-    message::{rest_of_chat_message, truncate_response_for_twitch},
-    serde_json::unwrap_reqwest,
-};
+use utils::{message::rest_of_chat_message, serde_json::unwrap_reqwest};
 
 pub async fn dispatch(responder: &TwitchResponder, msg: &PrivmsgMessage, command: &str) -> String {
     let response_fn = responder.response_fn.as_ref().unwrap();
@@ -43,7 +40,7 @@ async fn cmd_dictionary_lookup(msg: &PrivmsgMessage, command: &str) -> String {
         count += 1;
     }
 
-    truncate_response_for_twitch(resp)
+    resp
 }
 
 async fn cmd_thesaurus_lookup(msg: &PrivmsgMessage, command: &str) -> String {
@@ -70,7 +67,7 @@ async fn cmd_thesaurus_lookup(msg: &PrivmsgMessage, command: &str) -> String {
             }
         }
 
-        truncate_response_for_twitch(resp)
+        resp
     } else {
         format!("'{}' wasn't in the thesaurus", word)
     }

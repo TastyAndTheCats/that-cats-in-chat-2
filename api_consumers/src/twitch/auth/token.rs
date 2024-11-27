@@ -37,7 +37,7 @@ async fn get_new_access_and_refresh_tokens(refresh_token: String) -> (String, St
         ("grant_type", "refresh_token".to_owned()),
         ("refresh_token", refresh_token),
     ];
-    // NOTE: this is the reqwest that runs refresh_token so can't be replaced with twitch::{get,post()}, nor should it be;
+    // NOTE: this is the reqwest that runs refresh_token so can't be replaced with twitch::{get,post}, nor should it be;
     let resp = unwrap_reqwest(
         Client::new()
             .post("https://id.twitch.tv/oauth2/token")

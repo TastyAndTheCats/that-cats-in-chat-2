@@ -18,7 +18,7 @@ use types::{
 #[get("/login")]
 async fn twitch_login_initiate() -> impl Responder {
     let state = auth::state();
-    let scope = "channel:bot moderator:manage:shoutouts channel:manage:broadcast";
+    let scope = "channel:bot moderator:manage:shoutouts channel:manage:broadcast moderator:manage:banned_users";
     let app: App = app(None, None, None, None);
     login::user::initiate_login(&state, &scope, true, false).unwrap();
     redirect(

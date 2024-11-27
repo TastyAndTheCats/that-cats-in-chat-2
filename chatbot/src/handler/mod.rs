@@ -15,6 +15,7 @@ pub async fn dispatch(
     client: TwitchClient,
     mut incoming_messages: UnboundedReceiver<ServerMessage>,
     responders: Vec<TwitchResponder>,
+    bot_id: i32,
 ) {
     while let Some(message) = incoming_messages.recv().await {
         match message {
@@ -40,7 +41,9 @@ pub async fn dispatch(
                     &msg.sender.name,
                     &msg.message_text
                 );
-                privmsgs::dispatch(client.clone(), msg, responders.clone()).await;
+                if msg.sender.id != format!("{}", bot_id) {
+                    privmsgs::dispatch(client.clone(), msg, responders.clone()).await;
+                }
             }
             ServerMessage::RoomState(msg) => {
                 tracing::debug!(

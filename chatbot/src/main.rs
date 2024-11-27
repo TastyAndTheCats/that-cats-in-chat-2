@@ -18,7 +18,7 @@ mod local_types;
 mod responder;
 mod timed_messages;
 
-use database::models::responders::TwitchResponder;
+use database::{bot::bot_from_owner_id, models::responders::TwitchResponder};
 use local_types::TwitchClient;
 use types::get::channel;
 
@@ -48,13 +48,22 @@ async fn start_bot() -> tokio::task::JoinHandle<()> {
 
     print_responders(&responders);
     say_hello(client.clone(), &responders).await;
+    let chatbot_info = bot_from_owner_id(&channel.id).unwrap();
 
     let timed_message_client = client.clone();
     let timed_message_responders = responders.clone();
     tokio::spawn(async move {
         timed_messages::scheduler(timed_message_client, timed_message_responders).await
     });
-    tokio::spawn(async move { handler::dispatch(client, incoming_messages, responders).await })
+    tokio::spawn(async move {
+        handler::dispatch(
+            client,
+            incoming_messages,
+            responders,
+            chatbot_info.id.unwrap_or(0),
+        )
+        .await
+    })
 }
 
 /// Things that need to happen before the bot starts listening to the channel
