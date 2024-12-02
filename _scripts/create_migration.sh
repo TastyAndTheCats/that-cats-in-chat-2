@@ -13,4 +13,4 @@
 #    - check the migrations generated
 #    - run the migrations
 
-diesel migration generate --diff-schema $1
+diesel migration generate --database-url sqlite://$DATABASE_URL --diff-schema $1

@@ -15,4 +15,3 @@ CREATE TABLE "twitch_games"(
 	"id" TEXT NOT NULL PRIMARY KEY,
 	"name" TEXT NOT NULL
 );
-

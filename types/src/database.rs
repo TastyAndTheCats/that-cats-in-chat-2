@@ -2,16 +2,13 @@ use std::env;
 
 /// From Environment Variables
 #[derive(Debug)]
-pub struct PostgresDatabase {
-    // pub username: String,
-    // pub password: String,
-    // pub database: String,
+pub struct SqliteDatabase {
     pub url: String,
 }
 
-impl Default for PostgresDatabase {
+impl Default for SqliteDatabase {
     fn default() -> Self {
-        PostgresDatabase {
+        SqliteDatabase {
             url: env::var("DATABASE_URL").expect("DATABASE_URL is missing"),
         }
     }

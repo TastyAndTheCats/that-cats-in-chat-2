@@ -1,19 +1,15 @@
 -- Definitions of modules
-CREATE TABLE
-    twitch_bot_responder_groups (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(1000) NOT NULL,
-        active BOOLEAN NOT NULL DEFAULT TRUE,
-        parent INTEGER,
-        FOREIGN KEY (parent) REFERENCES twitch_bot_responder_groups (id),
-        UNIQUE (title, parent)
-    );
+CREATE TABLE IF NOT EXISTS twitch_bot_responder_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT 1,
+    parent INTEGER,
+    FOREIGN KEY (parent) REFERENCES twitch_bot_responder_groups (id),
+    UNIQUE (title, parent)
+);
 
-INSERT INTO
-    twitch_bot_responder_groups (id, title, parent)
-VALUES
+INSERT INTO twitch_bot_responder_groups (id, title, parent) VALUES
     (1, 'Core Functions', NULL),
-    
     (7, 'Facts', 1),
     (8, 'Information', 1),
     (9, 'Twitch', 4),
@@ -21,17 +17,13 @@ VALUES
     (11, 'Chatter Status', 1),
     (12, 'Mathematics', 1),
     (13, 'Niceties', 1),
-
     (14, 'Emoji', 1),
-
     (2, 'Game-Related', NULL),
     (29, 'Colony-Builders', 2),
-
     (3, 'Third-Party', NULL),
     (5, 'User-Defined', 3),
     (4, 'API Consumers', 3),
     (6, 'Epic Games Store', 4),
-    
     (15, 'Food', 14),
     (19, 'Baked Goods', 15),
     (20, 'Dairy', 15),
@@ -43,110 +35,43 @@ VALUES
     (26, 'Meats', 15),
     (27, 'Utensils', 15),
     (28, 'Vegetables', 15),
-
     (16, 'Personal', 14),
     (17, 'Shapes', 14),
     (18, 'Events', 14);
 
 -- Definitions of responders
-CREATE TABLE
-    twitch_bot_responders (
-        id SERIAL PRIMARY KEY,
-        responder_group_id INTEGER REFERENCES twitch_bot_responder_groups (id),
-        title VARCHAR(1000) NOT NULL,
-        active BOOLEAN NOT NULL DEFAULT TRUE,
-        STARTS_WITH VARCHAR(500),
-        ends_with VARCHAR(500),
-        contains VARCHAR(500),
-        CONSTRAINT must_have_trigger CHECK (
-            STARTS_WITH IS NOT NULL OR
-            ends_with IS NOT NULL OR
-            contains IS NOT NULL
-        ),
-        response VARCHAR(500),
-        response_fn VARCHAR(500),
-        CONSTRAINT must_have_response CHECK (
-            response IS NOT NULL OR
-            response_fn IS NOT NULL
-        ),
-        UNIQUE (responder_group_id, title)
-    );
+CREATE TABLE IF NOT EXISTS twitch_bot_responders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    responder_group_id INTEGER REFERENCES twitch_bot_responder_groups (id),
+    title TEXT NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT 1,
+    starts_with TEXT,
+    ends_with TEXT,
+    contains TEXT,
+    response TEXT,
+    response_fn TEXT,
+    UNIQUE (responder_group_id, title)
+);
 
 -- just response
-INSERT INTO
-    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response)
-VALUES
+INSERT INTO twitch_bot_responders (responder_group_id, title, starts_with, contains, ends_with, response) VALUES
     (1, 'Say Hello', 'hello!', NULL, NULL, 'HeyGuys'),
     (1, '!test Command', NULL, '!test', NULL, 'TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE TwitchConHYPE'),
     (11, 'Lurk', NULL, '!lurk', NULL, 'have distracted {sender} and they are now playing with the kitties'),
-    (
-        11,
-        'Unlurk',
-        NULL,
-        '!unlurk',
-        NULL,
-        'has released {sender} from the cuteness trap and they have returned to spend time in chat'
-    ),
+    (11, 'Unlurk', NULL, '!unlurk', NULL, 'has released {sender} from the cuteness trap and they have returned to spend time in chat'),
     (11, 'BRB', NULL, '!brb', NULL, 'have momentarily distracted {sender}'),
     (11, 'UnBRB', NULL, '!back', NULL, 'have become bored with {sender} and have allowed them to return to chat'),
     (13, 'Illuminati', NULL, 'illuminati', NULL, 'TheIlluminati TheIlluminati TheIlluminati TheIlluminati TheIlluminati'),
-    (
-        13,
-        'English Please!',
-        '!english',
-        NULL,
-        NULL,
-        'Solo ingles Gracias / ภาษาอังกฤษเท่านั้น / Sadece Ingilizce / Только по Английски! Спасибо 
-        / 只有英文谢谢 / alleen Engels / אנגלית בלבד בבקשה / apenas inglês / Nur Englisch, Vielen Dank 
-        / انجليزي فقط. شكرا / que l''anglais / English only Please! Thank you. 💗'
-    ),
-    (
-        13,
-        'TERRIBLE',
-        NULL,
-        'terrible|misery',
-        NULL,
-        'Remember to use command ⭐Alt+F4⭐ if you''re not enjoying the stream. 
-        This will end your misery abruptly 🏳️ hope it''s working'
-    ),
-    (
-        13,
-        'Suicide Hotline',
-        '!hotline',
-        NULL,
-        NULL,
-        'If you or someone you know is contemplating suicide, please reach out to a professional. 
-        You can find help at a National Suicide Prevention Lifeline 
-        => USA: 18002738255 | US Crisis textline: 741741 text HOME 
-        => Crisis Services Canada: 833-456-4566 | SMS 45645 
-        => United Kingdom: 116 123 
-        => Trans Lifeline (877-565-8860) 
-        => Others: https://en.wikipedia.org/wiki/List_of_suicide_crisis_lines https://suicidepreventionlifeline.org'
-    ),
+    (13, 'English Please!', '!english', NULL, NULL, 'Solo ingles Gracias / ภาษาอังกฤษเท่านั้น / Sadece Ingilizce / Только по Английски! Спасибо / 只有英文谢谢 / alleen Engels / אנגלית בלבד בבקשה / apenas inglês / Nur Englisch, Vielen Dank / انجليزي فقط. شكرا / que l''anglais / English only Please! Thank you. 💗'),
+    (13, 'TERRIBLE', NULL, 'terrible|misery', NULL, 'Remember to use command ⭐Alt+F4⭐ if you''re not enjoying the stream. This will end your misery abruptly 🏳️ hope it''s working'),
+    (13, 'Suicide Hotline', '!hotline', NULL, NULL, 'If you or someone you know is contemplating suicide, please reach out to a professional. You can find help at a National Suicide Prevention Lifeline => USA: 18002738255 | US Crisis textline: 741741 text HOME => Crisis Services Canada: 833-456-4566 | SMS 45645 => United Kingdom: 116 123 => Trans Lifeline (877-565-8860) => Others: https://en.wikipedia.org/wiki/List_of_suicide_crisis_lines https://suicidepreventionlifeline.org'),
     (13, 'Hello!', '!hello', NULL, NULL, 'Hello {sender}! HeyGuys'),
     (13, 'Are you Muted?', NULL, '!muted', NULL, 'Hey {channel_name}, I think you''re muted! {sender} says they can''t hear you!'),
-    (
-        13,
-        'FPS Issue',
-        NULL,
-        '!fps|!frames|!framedrop',
-        NULL,
-        'Hey {channel_name}, you might be dropping frames - {sender} says they''re having trouble with your video feed'
-    ),
-    (
-        13,
-        'Wrong Scene',
-        NULL,
-        '!scene',
-        NULL,
-        'Hey {channel_name}, check your feed - {sender} says they think you''re broadcasting the wrong scene'
-    );
+    (13, 'FPS Issue', NULL, '!fps|!frames|!framedrop', NULL, 'Hey {channel_name}, you might be dropping frames - {sender} says they''re having trouble with your video feed'),
+    (13, 'Wrong Scene', NULL, '!scene', NULL, 'Hey {channel_name}, check your feed - {sender} says they think you''re broadcasting the wrong scene');
 
 -- just response_fn
-INSERT INTO
-    twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response_fn)
-VALUES
-    -- (1, '!fntest Command', NULL, '!fntest', NULL, 'unpack_the_galaxy'),
+INSERT INTO twitch_bot_responders (responder_group_id, title, starts_with, contains, ends_with, response_fn) VALUES
     (6, 'Epic Store Free Games', NULL, 'epic', NULL, 'api::epic_store::free_games'),
     (7, 'Dog Facts', NULL, '!dogfact', NULL, 'core::facts::dogfact'),
     (7, 'Cat Facts', NULL, '!catfact', NULL, 'core::facts::catfact'),
@@ -172,16 +97,8 @@ VALUES
     (12, 'Coin Flip', NULL, '!coinflip|!flipcoin|!cointoss|!tosscoin', NULL, 'core::maths::coin_toss'),
     (13, 'Shoutout', NULL, '!gowatch|!gofollow|!so', NULL, 'core::niceties::shoutout');
 
--- -- response and response_fn
--- INSERT INTO
---     twitch_bot_responders (responder_group_id, title, STARTS_WITH, contains, ends_with, response, response_fn)
--- VALUES
---     (1, '!bothtest Command', NULL, '!bothtest', NULL, 'This is a test of using a response and a response function', 'default');
-
 -- just response_fn and only starts_with
-INSERT INTO
-    twitch_bot_responders (responder_group_id, title, STARTS_WITH, response_fn)
-VALUES
+INSERT INTO twitch_bot_responders (responder_group_id, title, starts_with, response_fn) VALUES
     (19, 'Cookies', '!cookie|!biscuit|!cookies|!biscuits', 'core::emoji::baked_goods::cookies'),
     (19, 'Cupcakes', '!cupcake|!cupcakes', 'core::emoji::baked_goods::cupcakes'),
     (19, 'Muffins', '!muffin|!muffins', 'core::emoji::baked_goods::muffins'),
@@ -219,7 +136,7 @@ VALUES
     (22, 'Green Tea', '!greentea|!matcha', 'core::emoji::drinks::green_tea'),
     (22, 'Sake', '!sake|!sakes', 'core::emoji::drinks::sake'),
     (22, 'Champagne', '!champagne|!cork', 'core::emoji::drinks::champagne'),
-    (22, 'Wine', '!wine|!glassesofwine"', 'core::emoji::drinks::wine'),
+    (22, 'Wine', '!wine|!glassesofwine', 'core::emoji::drinks::wine'),
     (22, 'Cocktail', '!cocktail', 'core::emoji::drinks::cocktail'),
     (22, 'Martini', '!martini', 'core::emoji::drinks::martini'),
     (22, 'Pina Colada', '!pinacolada', 'core::emoji::drinks::pina_colada'),
@@ -258,102 +175,68 @@ VALUES
     (26, 'Volunteer as Tribute', '!tribute|!dwarfme|!volunteer', 'games::colony::tribute');
 
 -- Set who can and can't use each command
-CREATE TABLE
-    twitch_bot_responder_permissions (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(1000) NOT NULL,
-        requires_broadcaster BOOLEAN NOT NULL DEFAULT FALSE,
-        requires_moderator BOOLEAN NOT NULL DEFAULT FALSE,
-        requires_vip BOOLEAN NOT NULL DEFAULT FALSE,
-        requires_subscriber BOOLEAN NOT NULL DEFAULT FALSE,
-        requires_follower BOOLEAN NOT NULL DEFAULT FALSE
-    );
+CREATE TABLE IF NOT EXISTS twitch_bot_responder_permissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    requires_broadcaster BOOLEAN NOT NULL DEFAULT 0,
+    requires_moderator BOOLEAN NOT NULL DEFAULT 0,
+    requires_vip BOOLEAN NOT NULL DEFAULT 0,
+    requires_subscriber BOOLEAN NOT NULL DEFAULT 0,
+    requires_follower BOOLEAN NOT NULL DEFAULT 0
+);
 
-INSERT INTO
-    twitch_bot_responder_permissions (id, title, requires_broadcaster, requires_moderator, requires_vip, requires_subscriber, requires_follower)
-VALUES
-    (1, 'Anyone', FALSE, FALSE, FALSE, FALSE, FALSE),
-    (2, 'Broadcaster-Only', TRUE, FALSE, FALSE, FALSE, FALSE),
-    (3, 'Broadcaster and Mod', TRUE, TRUE, FALSE, FALSE, FALSE),
-    (4, 'Broadcaster, Mod, and VIP', TRUE, TRUE, TRUE, FALSE, FALSE),
-    (5, 'Subscriber+', TRUE, TRUE, TRUE, TRUE, FALSE),
-    (6, 'Follower+', TRUE, TRUE, TRUE, TRUE, TRUE),
-    (7, 'Moderator-Only', FALSE, TRUE, FALSE, FALSE, FALSE),
-    (8, 'VIP-Only', FALSE, FALSE, FALSE, TRUE, FALSE),
-    (9, 'Subscriber-Only', FALSE, FALSE, FALSE, TRUE, FALSE),
-    (10, 'Follower-Only', FALSE, FALSE, FALSE, FALSE, TRUE);
+INSERT INTO twitch_bot_responder_permissions (id, title, requires_broadcaster, requires_moderator, requires_vip, requires_subscriber, requires_follower) VALUES
+    (1, 'Anyone', 0, 0, 0, 0, 0),
+    (2, 'Broadcaster-Only', 1, 0, 0, 0, 0),
+    (3, 'Broadcaster and Mod', 1, 1, 0, 0, 0),
+    (4, 'Broadcaster, Mod, and VIP', 1, 1, 1, 0, 0),
+    (5, 'Subscriber+', 1, 1, 1, 1, 0),
+    (6, 'Follower+', 1, 1, 1, 1, 1),
+    (7, 'Moderator-Only', 0, 1, 0, 0, 0),
+    (8, 'VIP-Only', 0, 0, 1, 0, 0),
+    (9, 'Subscriber-Only', 0, 0, 0, 1, 0),
+    (10, 'Follower-Only', 0, 0, 0, 0, 1);
 
 -- Allow users to turn on and off whole modules
-CREATE TABLE
-    user_selected_modules (
-        user_id INTEGER REFERENCES twitch_user (id),
-        responder_group_id INTEGER REFERENCES twitch_bot_responder_groups (id) NOT NULL,
-        active BOOLEAN NOT NULL DEFAULT TRUE,
-        PRIMARY KEY (user_id, responder_group_id)
-    );
+CREATE TABLE IF NOT EXISTS user_selected_modules (
+    user_id INTEGER REFERENCES twitch_user (id),
+    responder_group_id INTEGER REFERENCES twitch_bot_responder_groups (id) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT 1,
+    PRIMARY KEY (user_id, responder_group_id)
+);
 
-INSERT INTO
-    user_selected_modules (user_id, responder_group_id)
-VALUES
+INSERT INTO user_selected_modules (user_id, responder_group_id) VALUES
     (167591621, 1);
 
 -- Different auto-response profiles
-CREATE TABLE
-    twitch_bot_auto_response_profiles (
-        id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        INTERVAL INTEGER DEFAULT 3600, -- minimum seconds before this auto-response fires again
-        distance INTEGER DEFAULT 50 -- minimum non-bot messages between repeat instances of this message
-    );
+CREATE TABLE IF NOT EXISTS twitch_bot_auto_response_profiles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    interval INTEGER DEFAULT 3600,
+    distance INTEGER DEFAULT 50
+);
 
-INSERT INTO
-    twitch_bot_auto_response_profiles (id, title, INTERVAL, distance)
-VALUES
+INSERT INTO twitch_bot_auto_response_profiles (id, title, interval, distance) VALUES
     (1, 'Never', NULL, NULL),
     (2, 'Hourly', 3600, 50),
     (3, 'Daily', 86400, 50);
 
 -- Allow users to turn on and off specific responders in a module
-CREATE TABLE
-    user_selected_responders (
-        user_id INTEGER REFERENCES twitch_user (id),
-        responder_id INTEGER REFERENCES twitch_bot_responders (id) NOT NULL,
-        responder_profile INTEGER REFERENCES twitch_bot_auto_response_profiles (id) NOT NULL DEFAULT 1,
-        active BOOLEAN NOT NULL DEFAULT TRUE,
-        last_instance INTEGER NOT NULL DEFAULT 0, -- UTC timestamp
-        permissions INTEGER REFERENCES twitch_bot_responder_permissions (id) NOT NULL DEFAULT 3,
-        cooldown INTEGER NOT NULL DEFAULT 10,
-        per_user_cooldown INTEGER NOT NULL DEFAULT 60,
-        include_specific_users TEXT DEFAULT NULL,
-        exclude_specific_users TEXT DEFAULT NULL,
-        CONSTRAINT include_or_exclude_not_both CHECK (
-            (
-                include_specific_users IS NULL AND
-                exclude_specific_users IS NULL
-            ) OR
-            (
-                include_specific_users IS NULL OR
-                exclude_specific_users IS NULL
-            )
-        ),
-        count INTEGER NOT NULL DEFAULT 0,
-        PRIMARY KEY (user_id, responder_id)
-    );
+CREATE TABLE IF NOT EXISTS user_selected_responders (
+    user_id INTEGER REFERENCES twitch_user (id),
+    responder_id INTEGER REFERENCES twitch_bot_responders (id) NOT NULL,
+    responder_profile INTEGER REFERENCES twitch_bot_auto_response_profiles (id) NOT NULL DEFAULT 1,
+    active BOOLEAN NOT NULL DEFAULT 1,
+    last_instance INTEGER NOT NULL DEFAULT 0,
+    permissions INTEGER REFERENCES twitch_bot_responder_permissions (id) NOT NULL DEFAULT 3,
+    cooldown INTEGER NOT NULL DEFAULT 10,
+    per_user_cooldown INTEGER NOT NULL DEFAULT 60,
+    include_specific_users TEXT DEFAULT NULL,
+    exclude_specific_users TEXT DEFAULT NULL,
+    count INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, responder_id)
+);
 
 -- Adds all of the possible responses to TastyAndTheCats' bot
-DO $$
-DECLARE
-    row_count INTEGER;
-    counter INTEGER := 1;
-BEGIN
-    -- Count the number of rows in the responders table
-    SELECT COUNT(*) INTO row_count FROM twitch_bot_responders;
-
-    -- Iterate over each row in the responders table
-    WHILE counter <= row_count LOOP
-        -- Insert a record into user_selected_responders for each responder for me
-        EXECUTE format('INSERT INTO user_selected_responders (user_id, responder_id, permissions) VALUES (167591621, %s, 4)', counter);
-        counter := counter + 1;
-    END LOOP;
-END;
-$$;
+INSERT INTO user_selected_responders (user_id, responder_id, permissions)
+SELECT 167591621, id, 4 FROM twitch_bot_responders;

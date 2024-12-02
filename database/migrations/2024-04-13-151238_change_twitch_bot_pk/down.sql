@@ -2,13 +2,9 @@
 
 DROP TABLE IF EXISTS "twitch_bot";
 CREATE TABLE "twitch_bot"(
-	"id" INT4 NOT NULL PRIMARY KEY,
+	"id" INTEGER NOT NULL PRIMARY KEY,
 	"login" TEXT NOT NULL,
 	"login_state" TEXT,
-	"channel_id" INT4,
+	"channel_id" INTEGER,
 	FOREIGN KEY ("channel_id") REFERENCES "twitch_user"("id")
 );
-
-
-
-

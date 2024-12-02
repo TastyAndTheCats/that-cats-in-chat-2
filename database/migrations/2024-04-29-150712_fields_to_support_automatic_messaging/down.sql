@@ -1,11 +1,9 @@
 -- This file should undo anything in `up.sql`
 
-ALTER TABLE user_selected_responders DROP 
-    last_automatic_instance
-;
+ALTER TABLE user_selected_responders DROP COLUMN last_automatic_instance;
 
-ALTER TABLE twitch_bot_responders DROP automatable;
-ALTER TABLE twitch_bot_responders DROP show_command_as;
+ALTER TABLE twitch_bot_responders DROP COLUMN automatable;
+ALTER TABLE twitch_bot_responders DROP COLUMN show_command_as;
 
 UPDATE user_selected_responders SET responder_profile = 3 WHERE responder_profile > 3;
 
