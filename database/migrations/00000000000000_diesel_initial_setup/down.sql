@@ -2,5 +2,4 @@
 -- and other internal bookkeeping. This file is safe to edit, any future
 -- changes will be added to existing projects as new migrations.
 
-DROP FUNCTION IF EXISTS diesel_manage_updated_at(_tbl regclass);
-DROP FUNCTION IF EXISTS diesel_set_updated_at();
+-- SQLite does not support triggers in the same way as PostgreSQL, so we will not be dropping the diesel_manage_updated_at function or the diesel_set_updated_at function.

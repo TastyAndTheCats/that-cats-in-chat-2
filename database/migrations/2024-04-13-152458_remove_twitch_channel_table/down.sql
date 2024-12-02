@@ -5,8 +5,5 @@ CREATE TABLE "twitch_channel"(
 	"login" TEXT NOT NULL,
 	"name" TEXT NOT NULL,
 	"language" TEXT NOT NULL,
-	"delay" INT4 NOT NULL
+	"delay" INTEGER NOT NULL
 );
-
-
-
